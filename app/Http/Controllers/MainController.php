@@ -20,11 +20,6 @@ class MainController extends Controller
         return view('auth');
     }
 
-    public function player()
-    {
-        return view('bot/index');
-    }
-
     public function authorizeTry(Request $request)
     {
         /**

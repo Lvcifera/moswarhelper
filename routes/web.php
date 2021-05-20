@@ -31,7 +31,6 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 Route::get('auth', [MainController::class, 'authForm'])->name('auth'); // форма авторизации
-Route::get('bot/index', [MainController::class, 'player'])->name('bot.index'); // данные персонажа
 Route::get('manual', [MainController::class, 'manual'])->name('manual'); // руководство пользователя
 Route::get('licences', [MainController::class, 'licences'])->name('licences'); // лицензии
 Route::get('teeth', [MainController::class, 'teeth'])->name('teeth'); // зубные ящики

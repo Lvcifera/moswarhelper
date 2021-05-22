@@ -12,14 +12,15 @@
                     <div class="card-header">Авторизация персонажа</div>
                     <div class="card-body">
                         <form method="POST" action="{{ route('authorizeTry') }}">
+                            @csrf
                             <input hidden type="text" class="form-control" id="action" value="login" name="action">
                             <div class="form-group">
                                 <label for="exampleInputEmail">Почта</label>
-                                <input type="email" class="form-control" id="exampleInputEmail" aria-describedby="emailHelp" name="email" value="ak-47y@mail.ru" placeholder="Enter email">
+                                <input type="email" class="form-control" id="exampleInputEmail" aria-describedby="emailHelp" name="email"  placeholder="test@mail.ru">
                             </div>
                             <div class="form-group">
                                 <label for="exampleInputPassword">Пароль</label>
-                                <input type="password" class="form-control" id="exampleInputPassword" name="password" value="R2004pBC" placeholder="Password">
+                                <input type="password" class="form-control" id="exampleInputPassword" name="password" placeholder="qwerty">
                             </div>
                             <br>
                             <input hidden type="text" class="form-control" id="remember" value="on" name="remember">

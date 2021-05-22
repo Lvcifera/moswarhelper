@@ -100,11 +100,11 @@
             {{ session('success') }}
         </div>
     @endif
-        @if(session('danger'))
-            <div class="alert alert-dismissible alert-danger">
-                {{ session('danger') }}
-            </div>
-        @endif
+    @if(session('danger'))
+        <div class="alert alert-dismissible alert-danger">
+            {{ session('danger') }}
+        </div>
+    @endif
 
     @if($errors->any())
         @foreach($errors->all() as $error)

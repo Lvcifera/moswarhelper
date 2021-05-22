@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LicenceRequest extends FormRequest
+class PetriksRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class LicenceRequest extends FormRequest
     public function rules()
     {
         return [
-            'monthCount' => 'required|integer|min:1|max:12',
-            'player' => 'required|unique:licences,user_id,' . auth()->user()->id,
+            'nanoCount' => 'required|integer|min:0'
         ];
     }
 }

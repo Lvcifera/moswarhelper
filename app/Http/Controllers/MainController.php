@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GypsyRequest;
 use App\Http\Requests\LicenceRequest;
 use App\Http\Requests\MoscowpolyRequest;
+use App\Http\Requests\PetriksRequest;
 use App\Http\Requests\TeethRequest;
 use App\Models\Player;
 use App\Models\Licence;
@@ -65,7 +66,9 @@ class MainController extends Controller
         $string = explode("params:['", $playerPage->body());
         $param = mb_strcut($string[1], 0, 40);
 
-        $character = Player::where('userid', '=', $response->cookies()->toArray()[2]['Value'])->first();
+        $character = Player::where('userid', '=', $response->cookies()->toArray()[2]['Value'])
+            ->where('user_id', '=', auth()->id())
+            ->first();
         if ($character == null) {
             $character = new Player();
             $character->user_id = auth()->user()->id;
@@ -91,15 +94,8 @@ class MainController extends Controller
 
     public function teeth()
     {
-        /**
-         * если пользователь не авторизован
-         */
-        if (auth()->user() != null) {
-            $players = User::find(auth()->id())->players;
-            return view('modules.teeth', compact('players'));
-        } else {
-            return redirect()->route('login');
-        }
+        $players = User::find(auth()->id())->players;
+        return view('modules.teeth', compact('players'));
     }
 
     public function teethWork(TeethRequest $request)
@@ -107,7 +103,11 @@ class MainController extends Controller
         $playerData = Player::where('player', '=', $request->player)->first();
 
         $start_time = new Carbon();
-        for ($i = 0; $i < $request->teethCount; $i++) {
+        $count = 0;
+        while ($count < $request->teethCount) {
+            /**
+             * покупаем зубной ящик
+             */
             $buy = Http::withBody('key=' . $playerData->param . '&' .
                 'action=buy&' . 'item=6603&amount=&return_url=%2Fberezka%2Fsection%2Fmixed%2F&' .
                 'type=&ajax_ext=2&autochange_honey=0', 'application/x-www-form-urlencoded; charset=UTF-8')
@@ -119,22 +119,52 @@ class MainController extends Controller
                         'player' => urlencode($playerData->player),
                         'player_id' => $playerData->player_id,
                     ], 'moswar.ru')->post('https://www.moswar.ru/shop/json/');
+            /**
+             * получаем ID купленного зубного ящика
+             */
+            $getBoxID = Http::withCookies(
+                    [
+                        'PHPSESSID' => $playerData->PHPSESSID,
+                        'authkey' => $playerData->authkey,
+                        'userid' => $playerData->userid,
+                        'player' => urlencode($playerData->player),
+                        'player_id' => $playerData->player_id,
+                    ], 'moswar.ru')->get('https://www.moswar.ru/player');
+            $boxesData = explode('id="inventory-box_teeth-btn" data-action="use" data-id="', $getBoxID->body());
+            $boxID = mb_strcut(array_pop($boxesData), 0, 10);
+            /**
+             * открываем купленный зубной ящик,
+             * используя его уникальный ID
+             */
+            $getBoxID = Http::withCookies(
+                    [
+                        'PHPSESSID' => $playerData->PHPSESSID,
+                        'authkey' => $playerData->authkey,
+                        'userid' => $playerData->userid,
+                        'player' => urlencode($playerData->player),
+                        'player_id' => $playerData->player_id,
+                    ], 'moswar.ru')->get('https://www.moswar.ru/player/json/use/' . $boxID . '/');
+            if ($buy->json('result') == 1) {
+                $count++;
+            }
+            if ($buy->json('result') == 0) {
+                $end_time = new Carbon();
+                $time = $end_time->diffInSeconds($start_time);
+                break;
+                return redirect()->route('teeth')->with('success', 'Действие выполнено частично, закончились зубы,
+                 куплено ' . $count . ' зубных ящиков. Затраченное время ' . gmdate('H:i:s', $time) . ' секунд');
+            }
         }
         $end_time = new Carbon();
         $time = $end_time->diffInSeconds($start_time);
 
-        return redirect()->route('teeth')->with('success', 'Действие успешно выполнено, затраченное время ' . $time . ' секунд');
+        return redirect()->route('teeth')->with('success', 'Действие успешно выполнено, затраченное время ' . gmdate('H:i:s', $time));
     }
 
     public function licences()
     {
         $licences = Licence::where('user_id', '=', auth()->user()->id)->get();
-
-        if (auth()->user() != null) {
-            return view('licences', compact('licences'));
-        } else {
-            return redirect()->route('login');
-        }
+        return view('licences', compact('licences'));
     }
 
     public function licenceAdd(LicenceRequest $request)
@@ -159,15 +189,8 @@ class MainController extends Controller
 
     public function moscowpoly()
     {
-        /**
-         * если пользователь не авторизован
-         */
-        if (auth()->user() != null) {
-            $players = User::find(auth()->id())->players;
-            return view('modules.moscowpoly', compact('players'));
-        } else {
-            return redirect()->route('login');
-        }
+        $players = User::find(auth()->id())->players;
+        return view('modules.moscowpoly', compact('players'));
     }
 
     public function moscowpolyWork(MoscowpolyRequest $request)
@@ -175,7 +198,11 @@ class MainController extends Controller
         $playerData = Player::where('player', '=', $request->player)->first();
 
         $start_time = new Carbon();
-        for ($i = 0; $i < $request->cubesCount; $i++) {
+        $count = 0;
+        while ($count < $request->cubesCount) {
+            /**
+             * бросаем кубик
+             */
             $roll = Http::withBody('action=moscowpoly_roll&ajax=1&__referrer=%2Fhome%2F&return_url=%2Fhome%2F',
                 'application/x-www-form-urlencoded; charset=UTF-8')
                 ->withCookies(
@@ -186,6 +213,17 @@ class MainController extends Controller
                         'player' => urlencode($playerData->player),
                         'player_id' => $playerData->player_id,
                     ], 'moswar.ru')->post('https://www.moswar.ru/home/moscowpoly_roll/');
+            if (!$roll->json('result')) {
+                $end_time = new Carbon();
+                $time = $end_time->diffInSeconds($start_time);
+                break;
+                return redirect()->route('moscowpoly')->with('danger', 'У вас закончились кубики.
+                Брошено ' . $count . '. Затраченное время ' . $time . ' секунд');
+            }
+            $count++;
+            /**
+             * забираем приз
+             */
             $get_prize = Http::withBody('action=moscowpoly_activate&ajax=1&__referrer=%2Fhome%2F&return_url=%2Fhome%2F',
                 'application/x-www-form-urlencoded; charset=UTF-8')
                 ->withCookies(
@@ -200,20 +238,13 @@ class MainController extends Controller
         $end_time = new Carbon();
         $time = $end_time->diffInSeconds($start_time);
 
-        return redirect()->route('moscowpoly')->with('success', 'Действие успешно выполнено, затраченное время ' . $time . ' секунд');
+        return redirect()->route('moscowpoly')->with('success', 'Действие успешно выполнено, затраченное время ' . gmdate('H:i:s', $time));
     }
 
     public function gypsy()
     {
-        /**
-         * если пользователь не авторизован
-         */
-        if (auth()->user() != null) {
-            $players = User::find(auth()->id())->players;
-            return view('modules.gypsy', compact('players'));
-        } else {
-            return redirect()->route('login');
-        }
+        $players = User::find(auth()->id())->players;
+        return view('modules.gypsy', compact('players'));
     }
 
     public function gypsyWork(GypsyRequest $request)
@@ -221,7 +252,11 @@ class MainController extends Controller
         $playerData = Player::where('player', '=', $request->player)->first();
 
         $start_time = new Carbon();
-        for ($i = 0; $i < $request->gypsyCount; $i++) {
+        $count = 0;
+        while ($count < $request->gypsyCount) {
+            /**
+             * начинаем игру
+             */
             $start_game = Http::withBody('action=gypsyStart&gametype=1',
                 'application/x-www-form-urlencoded; charset=UTF-8')
                 ->withCookies(
@@ -231,7 +266,11 @@ class MainController extends Controller
                         'userid' => $playerData->userid,
                         'player' => urlencode($playerData->player),
                         'player_id' => $playerData->player_id,
+                        'cmpstate' => 'old'
                     ], 'moswar.ru')->post('https://www.moswar.ru/camp/gypsy/');
+            /**
+             * ставим автоматическую игру
+             */
             $auto_game = Http::withBody('action=gypsyAuto',
                 'application/x-www-form-urlencoded; charset=UTF-8')
                 ->withCookies(
@@ -242,19 +281,42 @@ class MainController extends Controller
                         'player' => urlencode($playerData->player),
                         'player_id' => $playerData->player_id,
                     ], 'moswar.ru')->post('https://www.moswar.ru/camp/gypsy/');
+            $count++;
         }
         $end_time = new Carbon();
         $time = $end_time->diffInSeconds($start_time);
 
-        return redirect()->route('gypsy')->with('success', 'Действие успешно выполнено, затраченное время ' . $time . ' секунд');
+        return redirect()->route('gypsy')->with('success', 'Действие успешно выполнено, затраченное время ' . gmdate('H:i:s', $time));
     }
 
     public function petriks()
     {
-        if (auth()->user() != null) {
-            return view('modules.petriks');
-        } else {
-            return redirect()->route('login');
+        $players = User::find(auth()->id())->players;
+        return view('modules.petriks', compact('players'));
+    }
+
+    public function petriksWork(PetriksRequest $request)
+    {
+        $playerData = Player::where('player', '=', $request->player)->first();
+
+        $start_time = new Carbon();
+        $count = 0;
+        while ($count < $request->nanoCount) {
+            $doPetriks = Http::withBody('player=' . $playerData->player_id . '&__ajax=1&return_url=/factory/',
+                'application/x-www-form-urlencoded; charset=UTF-8')
+                ->withCookies(
+                    [
+                        'PHPSESSID' => $playerData->PHPSESSID,
+                        'authkey' => $playerData->authkey,
+                        'userid' => $playerData->userid,
+                        'player' => urlencode($playerData->player),
+                        'player_id' => $playerData->player_id,
+                    ], 'moswar.ru')->post('https://www.moswar.ru/factory/start-petriks/');
+            $count++;
         }
+        $end_time = new Carbon();
+        $time = $end_time->diffInSeconds($start_time);
+
+        return redirect()->route('petriks')->with('success', 'Действие успешно выполнено, затраченное время ' . gmdate('H:i:s', $time));
     }
 }

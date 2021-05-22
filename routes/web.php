@@ -18,10 +18,11 @@ use Illuminate\Support\Facades\Route;
 /**
  * конкретные действия
  */
-Route::post('bot/index', [MainController::class, 'authorizeTry'])->name('authorizeTry'); // попытка авторизации
+Route::post('auth/', [MainController::class, 'authorizeTry'])->name('authorizeTry'); // попытка авторизации
 Route::post('teeth/', [MainController::class, 'teethWork'])->name('teeth.work'); // покупка и открытие зубных ящиков
 Route::post('gypsy/', [MainController::class, 'gypsyWork'])->name('gypsy.work'); // игра с гадалкой
 Route::post('moscowpoly/', [MainController::class, 'moscowpolyWork'])->name('moscowpoly.work'); // броски кубиков москвополии
+Route::post('petriks/', [MainController::class, 'petriksWork'])->name('petriks.work'); // варка петриков
 Route::post('licences/', [MainController::class, 'licenceAdd'])->name('licence.add'); // добавить лицензию
 
 /**
@@ -32,11 +33,11 @@ Route::get('/', function () {
 })->name('welcome');
 Route::get('auth', [MainController::class, 'authForm'])->name('auth'); // форма авторизации
 Route::get('manual', [MainController::class, 'manual'])->name('manual'); // руководство пользователя
-Route::get('licences', [MainController::class, 'licences'])->name('licences'); // лицензии
-Route::get('teeth', [MainController::class, 'teeth'])->name('teeth'); // зубные ящики
-Route::get('moscowpoly', [MainController::class, 'moscowpoly'])->name('moscowpoly'); // москвополия
-Route::get('gypsy', [MainController::class, 'gypsy'])->name('gypsy'); // гадалка
-Route::get('petriks', [MainController::class, 'petriks'])->name('petriks'); // петрики
+Route::get('licences', [MainController::class, 'licences'])->name('licences')->middleware('auth');; // лицензии
+Route::get('teeth', [MainController::class, 'teeth'])->name('teeth')->middleware('auth');; // зубные ящики
+Route::get('moscowpoly', [MainController::class, 'moscowpoly'])->name('moscowpoly')->middleware('auth');; // москвополия
+Route::get('gypsy', [MainController::class, 'gypsy'])->name('gypsy')->middleware('auth');; // гадалка
+Route::get('petriks', [MainController::class, 'petriks'])->name('petriks')->middleware('auth');; // петрики
 
 Auth::routes();
 

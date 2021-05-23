@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\BotFunctionController;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\ModuleController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -16,15 +18,19 @@ use Illuminate\Support\Facades\Route;
 */
 
 /**
- * конкретные действия
+ * общие действия
  */
 Route::post('auth/', [MainController::class, 'authorizeTry'])->name('authorizeTry'); // попытка авторизации
-Route::post('teeth/', [MainController::class, 'teethWork'])->name('teeth.work'); // покупка и открытие зубных ящиков
-Route::post('gypsy/', [MainController::class, 'gypsyWork'])->name('gypsy.work'); // игра с гадалкой
-Route::post('moscowpoly/', [MainController::class, 'moscowpolyWork'])->name('moscowpoly.work'); // броски кубиков москвополии
-Route::post('petriks/', [MainController::class, 'petriksWork'])->name('petriks.work'); // варка петриков
-Route::post('gifts/', [MainController::class, 'giftsWork'])->name('gifts.work'); // дарение подарков
 Route::post('licences/', [MainController::class, 'licenceAdd'])->name('licence.add'); // добавить лицензию
+
+/**
+ * модули
+ */
+Route::post('teeth/', [ModuleController::class, 'teethWork'])->name('teeth.work'); // покупка и открытие зубных ящиков
+Route::post('gypsy/', [ModuleController::class, 'gypsyWork'])->name('gypsy.work'); // игра с гадалкой
+Route::post('moscowpoly/', [ModuleController::class, 'moscowpolyWork'])->name('moscowpoly.work'); // броски кубиков москвополии
+Route::post('petriks/', [ModuleController::class, 'petriksWork'])->name('petriks.work'); // варка петриков
+Route::post('gifts/', [ModuleController::class, 'giftsWork'])->name('gifts.work'); // дарение подарков
 
 /**
  * страницы приложения
@@ -35,12 +41,12 @@ Route::get('/', function () {
 Route::get('auth', [MainController::class, 'authForm'])->name('auth')->middleware('auth'); // форма авторизации
 Route::get('manual', [MainController::class, 'manual'])->name('manual'); // руководство пользователя
 Route::get('licences', [MainController::class, 'licences'])->name('licences')->middleware('auth'); // лицензии
-Route::get('teeth', [MainController::class, 'teeth'])->name('teeth')->middleware('auth');; // зубные ящики
-Route::get('moscowpoly', [MainController::class, 'moscowpoly'])->name('moscowpoly')->middleware('auth');; // москвополия
-Route::get('gypsy', [MainController::class, 'gypsy'])->name('gypsy')->middleware('auth');; // гадалка
-Route::get('petriks', [MainController::class, 'petriks'])->name('petriks')->middleware('auth');; // петрики
-Route::get('gifts', [MainController::class, 'gifts'])->name('gifts')->middleware('auth');; // подарки
-Route::get('botFunctions', [MainController::class, 'botFunctions'])->name('botFunctions')->middleware('auth');; // функции бота
+Route::get('teeth', [ModuleController::class, 'teeth'])->name('teeth')->middleware('auth');; // зубные ящики
+Route::get('moscowpoly', [ModuleController::class, 'moscowpoly'])->name('moscowpoly')->middleware('auth');; // москвополия
+Route::get('gypsy', [ModuleController::class, 'gypsy'])->name('gypsy')->middleware('auth');; // гадалка
+Route::get('petriks', [ModuleController::class, 'petriks'])->name('petriks')->middleware('auth');; // петрики
+Route::get('gifts', [ModuleController::class, 'gifts'])->name('gifts')->middleware('auth');; // подарки
+Route::get('botFunctions', [BotFunctionController::class, 'botFunctions'])->name('botFunctions')->middleware('auth');; // функции бота
 
 Auth::routes();
 

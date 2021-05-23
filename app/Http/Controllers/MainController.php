@@ -54,8 +54,13 @@ class MainController extends Controller
          * проверяем, есть ли у текущего пользователя
          * лицензия на авторизованного персонажа
          */
-        $userLicences = User::find(auth()->id())->licences;
-        if (!$userLicences->contains('player', urldecode($response->cookies()->toArray()[3]['Value']))) {
+        $userLicence = Licence::with('user')
+            ->where('user_id', '=', auth()->id())
+            ->where('player', '=', urldecode($response->cookies()->toArray()[3]['Value']))
+            ->first();
+        //dd($userLicence);
+        //$userLicences = User::find(auth()->id())->licences;
+        if ($userLicence == null) {
             return redirect()->route('auth')->with('danger', 'У вас нет лицензии на этого персонажа');
         }
 
@@ -73,6 +78,7 @@ class MainController extends Controller
         if ($character == null) {
             $character = new Player();
             $character->user_id = auth()->user()->id;
+            $character->licence_id = $userLicence->id;
             $character->PHPSESSID = $response->cookies()->toArray()[0]['Value'];
             $character->authkey = $response->cookies()->toArray()[1]['Value'];
             $character->userid = $response->cookies()->toArray()[2]['Value'];
@@ -95,7 +101,10 @@ class MainController extends Controller
 
     public function teeth()
     {
-        $players = User::find(auth()->id())->players;
+        $players = Licence::with('characters')
+            ->where('user_id', '=', auth()->id())
+            ->where('end', '>', Carbon::now())
+            ->get();
         return view('modules.teeth', compact('players'));
     }
 
@@ -190,7 +199,10 @@ class MainController extends Controller
 
     public function moscowpoly()
     {
-        $players = User::find(auth()->id())->players;
+        $players = Licence::with('characters')
+            ->where('user_id', '=', auth()->id())
+            ->where('end', '>', Carbon::now())
+            ->get();
         return view('modules.moscowpoly', compact('players'));
     }
 
@@ -244,7 +256,10 @@ class MainController extends Controller
 
     public function gypsy()
     {
-        $players = User::find(auth()->id())->players;
+        $players = Licence::with('characters')
+            ->where('user_id', '=', auth()->id())
+            ->where('end', '>', Carbon::now())
+            ->get();
         return view('modules.gypsy', compact('players'));
     }
 
@@ -292,7 +307,10 @@ class MainController extends Controller
 
     public function petriks()
     {
-        $players = User::find(auth()->id())->players;
+        $players = Licence::with('characters')
+            ->where('user_id', '=', auth()->id())
+            ->where('end', '>', Carbon::now())
+            ->get();
         return view('modules.petriks', compact('players'));
     }
 
@@ -323,7 +341,10 @@ class MainController extends Controller
 
     public function gifts()
     {
-        $players = User::find(auth()->id())->players;
+        $players = Licence::with('characters')
+            ->where('user_id', '=', auth()->id())
+            ->where('end', '>', Carbon::now())
+            ->get();
         return view('modules.gifts', compact('players'));
     }
 

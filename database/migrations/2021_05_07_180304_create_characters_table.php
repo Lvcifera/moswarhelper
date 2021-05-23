@@ -16,6 +16,7 @@ class CreateCharactersTable extends Migration
         Schema::create('characters', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('licence_id');
             $table->string('PHPSESSID');
             $table->string('authkey');
             $table->string('userid');
@@ -26,6 +27,11 @@ class CreateCharactersTable extends Migration
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+            $table->foreign('licence_id')
+                ->references('id')
+                ->on('licences')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
         });

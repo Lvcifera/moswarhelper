@@ -8,7 +8,7 @@ class Player extends Model
 {
     protected $table = 'characters';
 
-    public function licences()
+    public function licence()
     {
         return $this->hasOne(Licence::class);
     }

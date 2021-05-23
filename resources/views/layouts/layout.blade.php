@@ -33,6 +33,7 @@
                         <a class="dropdown-item" href="{{ route('moscowpoly') }}">Кубики Москвополии</a>
                         <a class="dropdown-item" href="{{ route('gypsy') }}">Игра с гадалкой</a>
                         <a class="dropdown-item" href="{{ route('petriks') }}">Варка петриков</a>
+                        <a class="dropdown-item" href="{{ route('gifts') }}">Дарение подарков</a>
                     </div>
                 </li>
                 <li class="nav-item">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GiftsRequest;
 use App\Http\Requests\GypsyRequest;
 use App\Http\Requests\LicenceRequest;
 use App\Http\Requests\MoscowpolyRequest;
@@ -150,9 +151,9 @@ class MainController extends Controller
             if ($buy->json('result') == 0) {
                 $end_time = new Carbon();
                 $time = $end_time->diffInSeconds($start_time);
-                break;
                 return redirect()->route('teeth')->with('success', 'Действие выполнено частично, закончились зубы,
                  куплено ' . $count . ' зубных ящиков. Затраченное время ' . gmdate('H:i:s', $time) . ' секунд');
+                break;
             }
         }
         $end_time = new Carbon();
@@ -216,9 +217,9 @@ class MainController extends Controller
             if (!$roll->json('result')) {
                 $end_time = new Carbon();
                 $time = $end_time->diffInSeconds($start_time);
-                break;
                 return redirect()->route('moscowpoly')->with('danger', 'У вас закончились кубики.
                 Брошено ' . $count . '. Затраченное время ' . $time . ' секунд');
+                break;
             }
             $count++;
             /**
@@ -318,5 +319,65 @@ class MainController extends Controller
         $time = $end_time->diffInSeconds($start_time);
 
         return redirect()->route('petriks')->with('success', 'Действие успешно выполнено, затраченное время ' . gmdate('H:i:s', $time));
+    }
+
+    public function gifts()
+    {
+        $players = User::find(auth()->id())->players;
+        return view('modules.gifts', compact('players'));
+    }
+
+    public function giftsWork(GiftsRequest $request)
+    {
+        $playerData = Player::where('player', '=', $request->player)->first();
+
+        $start_time = new Carbon();
+        /**
+         * проверяем, существует ли персонаж с
+         * указанным именем
+         */
+        $checkPlayerExist = Http::withCookies(
+                [
+                    'PHPSESSID' => $playerData->PHPSESSID,
+                    'authkey' => $playerData->authkey,
+                    'userid' => $playerData->userid,
+                    'player' => urlencode($playerData->player),
+                    'player_id' => $playerData->player_id,
+                ], 'moswar.ru')->get('https://www.moswar.ru/shop/playerexists/' . $request->reciever . '/');
+        if ($checkPlayerExist->json() == 0) {
+            return redirect()->route('gifts')->with('danger', 'Игрока с таким именем не существует');
+        }
+
+        $count = 0;
+        while ($count < $request->giftCount) {
+            /**
+             * дарим подарок
+             */
+            $content = 'action=buy&return_url=%2Fshop%2Fsection%2Fgifts%2F%23negative&item=' .
+                $request->gift . '&playerid=&key=' . $playerData->param . '&player=' .
+                $request->reciever . '&comment=' . $request->comment . '&';
+            if ($request->private != null) {
+                $content .= 'private=on&';
+            }
+            if ($request->anonimous != null) {
+                $content .= 'anonimous=on&__ajax=1';
+            }
+            $content .= '&__ajax=1';
+
+            $gift = Http::withBody($content,'application/x-www-form-urlencoded; charset=UTF-8')
+                ->withCookies(
+                    [
+                        'PHPSESSID' => $playerData->PHPSESSID,
+                        'authkey' => $playerData->authkey,
+                        'userid' => $playerData->userid,
+                        'player' => urlencode($playerData->player),
+                        'player_id' => $playerData->player_id,
+                    ], 'moswar.ru')->post('https://www.moswar.ru/shop/');
+            $count++;
+        }
+        $end_time = new Carbon();
+        $time = $end_time->diffInSeconds($start_time);
+
+        return redirect()->route('gifts')->with('success', 'Действие успешно выполнено, затраченное время ' . gmdate('H:i:s', $time));
     }
 }

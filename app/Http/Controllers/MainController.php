@@ -401,4 +401,13 @@ class MainController extends Controller
 
         return redirect()->route('gifts')->with('success', 'Действие успешно выполнено, затраченное время ' . gmdate('H:i:s', $time));
     }
+
+    public function botFunctions()
+    {
+        $players = Licence::with('characters')
+            ->where('user_id', '=', auth()->id())
+            ->where('end', '>', Carbon::now())
+            ->get();
+        return view('modules.botFunctions', compact('players'));
+    }
 }

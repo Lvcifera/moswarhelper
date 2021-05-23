@@ -23,7 +23,7 @@ Route::post('teeth/', [MainController::class, 'teethWork'])->name('teeth.work');
 Route::post('gypsy/', [MainController::class, 'gypsyWork'])->name('gypsy.work'); // игра с гадалкой
 Route::post('moscowpoly/', [MainController::class, 'moscowpolyWork'])->name('moscowpoly.work'); // броски кубиков москвополии
 Route::post('petriks/', [MainController::class, 'petriksWork'])->name('petriks.work'); // варка петриков
-Route::post('gifts/', [MainController::class, 'giftsWork'])->name('gifts.work'); // варка петриков
+Route::post('gifts/', [MainController::class, 'giftsWork'])->name('gifts.work'); // дарение подарков
 Route::post('licences/', [MainController::class, 'licenceAdd'])->name('licence.add'); // добавить лицензию
 
 /**
@@ -40,6 +40,7 @@ Route::get('moscowpoly', [MainController::class, 'moscowpoly'])->name('moscowpol
 Route::get('gypsy', [MainController::class, 'gypsy'])->name('gypsy')->middleware('auth');; // гадалка
 Route::get('petriks', [MainController::class, 'petriks'])->name('petriks')->middleware('auth');; // петрики
 Route::get('gifts', [MainController::class, 'gifts'])->name('gifts')->middleware('auth');; // подарки
+Route::get('botFunctions', [MainController::class, 'botFunctions'])->name('botFunctions')->middleware('auth');; // функции бота
 
 Auth::routes();
 

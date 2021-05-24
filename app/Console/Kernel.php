@@ -18,17 +18,19 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\Patrol::class,
+        Commands\Shaurburgers::class,
     ];
 
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param  Schedule  $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('patrol:start')->everyTenMinutes();
+        $schedule->command('shaurburgers:start')->everyThirtyMinutes();
     }
 
     /**

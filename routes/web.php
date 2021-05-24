@@ -37,8 +37,10 @@ Route::post('gifts/', [ModuleController::class, 'giftsWork'])->name('gifts.work'
 /**
  * функции бота
  */
-Route::post('botFunctions/', [BotFunctionController::class, 'patrolCreate'])->name('patrol.create'); // создание задачи патруля
+Route::post('botFunctions/patrol/create', [BotFunctionController::class, 'patrolCreate'])->name('patrol.create'); // создание задачи патруля
 Route::get('botFunctions/patroldel/{id}', [BotFunctionController::class, 'patrolDelete'])->name('patrol.delete'); // удаление задачи патруля
+Route::post('botFunctions/shaurburgers/create', [BotFunctionController::class, 'shaurburgersCreate'])->name('shaurburgers.create'); // создание задачи шаурбургерса
+Route::get('botFunctions/shaurburgers/{id}', [BotFunctionController::class, 'shaurburgersDelete'])->name('shaurburgers.delete'); // удаление задачи шаурбургерса
 
 /**
  * страницы приложения

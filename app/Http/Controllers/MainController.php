@@ -2,16 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\GiftsRequest;
-use App\Http\Requests\GypsyRequest;
+use App\Models\Shaurburgers;
 use App\Http\Requests\LicenceRequest;
-use App\Http\Requests\MoscowpolyRequest;
-use App\Http\Requests\PetriksRequest;
-use App\Http\Requests\TeethRequest;
 use App\Models\Character;
 use App\Models\Licence;
-use App\Models\Patrol;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -140,30 +134,30 @@ class MainController extends Controller
 
     public function test()
     {
-        $patrols = $task = Patrol::with('character')
+        $shaurburgers = Shaurburgers::with('character')
             ->get();
 
-        foreach ($patrols as $patrol) {
+        foreach ($shaurburgers as $shaurburger) {
             /**
-             * зайдем в закоулки, проверим активно
-             * ли патрулирование или на сегодня
+             * зайдем в шаурбургерс, проверим активна
+             * ли работа или на сегодня
              * больше нет времени
              */
             $flag = true;
-            $alley = Http::withBody('','application/x-www-form-urlencoded; charset=UTF-8')
+            $work = Http::withBody('','application/x-www-form-urlencoded; charset=UTF-8')
                 ->withCookies(
                     [
-                        'PHPSESSID' => $patrol->character->PHPSESSID,
-                        'authkey' => $patrol->character->authkey,
-                        'userid' => $patrol->character->userid,
-                        'player' => $patrol->character->player,
-                        'player_id' => $patrol->character->player_id,
-                    ], 'moswar.ru')->get('https://www.moswar.ru/alley/');
-            $time_lost = explode("На сегодня Вы уже истратили все время патрулирования", $alley->body());
-            $patrol_active = explode("Улизнуть с патрулирования", $alley->body());
+                        'PHPSESSID' => $shaurburgers[2]->character->PHPSESSID,
+                        'authkey' => $shaurburgers[2]->character->authkey,
+                        'userid' => $shaurburgers[2]->character->userid,
+                        'player' => $shaurburgers[2]->character->player,
+                        'player_id' => $shaurburgers[2]->character->player_id,
+                    ], 'moswar.ru')->get('https://www.moswar.ru/shaurburgers/');
+            $time_lost = explode("На сегодня вы отработали свою максимальную смену", $work->body());
+            $shaurburger_active = explode("1 час", $work->body());
             if (count($time_lost) == 2) { // на сегодня больше нет времени
                 $flag = false;
-            } elseif (count($patrol_active) == 2) { // на данный момент персонаж уже патрулирует
+            } elseif (count($shaurburger_active) == 1) { // на данный момент персонаж уже работает
                 $flag = false;
             }
 
@@ -173,19 +167,19 @@ class MainController extends Controller
              * отправляем его в патруль
              */
             if ($flag) {
-                $content = 'action=patrol&region=' . $patrol->getRawOriginal('region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
-                $patrol_start = Http::withBody($content,
+                $content = 'action=work&time=' . $shaurburger->getRawOriginal('time') . '&__ajax=1&return_url=/shaurburgers/';
+                $shaurburgers_start = Http::withBody($content,
                     'application/x-www-form-urlencoded; charset=UTF-8')
                     ->withCookies(
                         [
-                            'PHPSESSID' => $patrol->character->PHPSESSID,
-                            'authkey' => $patrol->character->authkey,
-                            'userid' => $patrol->character->userid,
-                            'player' => $patrol->character->player,
-                            'player_id' => $patrol->character->player_id,
-                        ], 'moswar.ru')->post('https://www.moswar.ru/alley/');
-                $patrol->last_start = Carbon::now();
-                $patrol->save();
+                            'PHPSESSID' => $shaurburger->character->PHPSESSID,
+                            'authkey' => $shaurburger->character->authkey,
+                            'userid' => $shaurburger->character->userid,
+                            'player' => $shaurburger->character->player,
+                            'player_id' => $shaurburger->character->player_id,
+                        ], 'webhook.site')->post('https://webhook.site/aa368925-bd49-444c-b81c-1cdff8553542');
+                $shaurburger->last_start = Carbon::now();
+                $shaurburger->save();
             }
         }
     }

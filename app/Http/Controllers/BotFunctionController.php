@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PatrolRequest;
+use App\Http\Requests\ShaurburgersRequest;
 use App\Models\Licence;
 use App\Models\Patrol;
+use App\Models\Shaurburgers;
 use Carbon\Carbon;
 
 class BotFunctionController extends Controller
@@ -18,7 +20,10 @@ class BotFunctionController extends Controller
         $patrols = Patrol::with('character')
             ->where('user_id', '=', auth()->id())
             ->get();
-        return view('modules.botFunctions', compact('players', 'patrols'));
+        $shaurburgers = Shaurburgers::with('character')
+            ->where('user_id', '=', auth()->id())
+            ->get();
+        return view('modules.botFunctions', compact('players', 'patrols', 'shaurburgers'));
     }
 
     public function patrolCreate(PatrolRequest $request)
@@ -57,5 +62,40 @@ class BotFunctionController extends Controller
         $patrol->delete();
 
         return redirect()->route('botFunctions')->with('success', 'Задача патруля успешно удалена');
+    }
+
+    public function shaurburgersCreate(ShaurburgersRequest $request)
+    {
+        $task = Shaurburgers::where('user_id', '=', auth()->id())
+            ->where('character_id', '=', $request->player)
+            ->first();
+
+        if ($task == null) {
+            $task = new Shaurburgers();
+            $task->user_id = auth()->id();
+            $task->character_id = $request->player;
+            $task->time = $request->time;
+            $task->save();
+
+            return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
+        } else {
+            $task = Shaurburgers::where('user_id', '=', auth()->id())
+                ->where('character_id', '=', $request->player)
+                ->first();
+            $task->user_id = auth()->id();
+            $task->character_id = $request->player;
+            $task->time = $request->time;
+            $task->update();
+
+            return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
+        }
+    }
+
+    public function shaurburgersDelete($id)
+    {
+        $shaurburgers = Shaurburgers::find($id);
+        $shaurburgers->delete();
+
+        return redirect()->route('botFunctions')->with('success', 'Задача шаурбургерса успешно удалена');
     }
 }

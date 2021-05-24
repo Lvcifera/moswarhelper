@@ -86,13 +86,13 @@
                                     </div>
                                     <br>
                                     <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
-                                    <br>
                                     <div class="form-group row mb-0">
                                         <div class="col-md-6 offset-md-4">
                                             <button type="submit" class="btn btn-primary">Добавить задачу</button>
                                         </div>
                                     </div>
                                 </form>
+                                <br>
                                 <table class="table table-hover">
                                     <thead>
                                     <tr>
@@ -127,7 +127,7 @@
                                 </table>
                             </div>
                             <div class="tab-pane fade" id="shaurburgers">
-                                <form method="POST" action="">
+                                <form method="POST" action="{{ route('shaurburgers.create') }}">
                                     @csrf
                                     <div class="form-group row">
                                         <label for="name" class="col-md-4 col-form-label text-md-right">На каком персонаже</label>
@@ -135,7 +135,7 @@
                                             <select class="form-select" id="exampleSelect1" name="player">
                                                 @if (!$players->isEmpty())
                                                     @foreach ($players as $player)
-                                                        <option>{{ $player->player }}</option>
+                                                        <option value="{{ $player->id }}">{{ $player->player }}</option>
                                                     @endforeach
                                                 @else
                                                     <option>Нет персонажей</option>
@@ -152,18 +152,52 @@
                                                 <option value="2">2 часа</option>
                                                 <option value="3">3 часа</option>
                                                 <option value="4">4 часа</option>
+                                                <option value="5">5 часов</option>
+                                                <option value="6">6 часов</option>
+                                                <option value="7">7 часов</option>
+                                                <option value="8">8 часов</option>
                                             </select>
                                         </div>
                                     </div>
                                     <br>
                                     <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
-                                    <br>
                                     <div class="form-group row mb-0">
                                         <div class="col-md-6 offset-md-4">
                                             <button type="submit" class="btn btn-primary">Добавить задачу</button>
                                         </div>
                                     </div>
                                 </form>
+                                <br>
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">Номер</th>
+                                        <th scope="col">Персонаж</th>
+                                        <th scope="col">Время</th>
+                                        <th scope="col">Последний запуск</th>
+                                        <th scope="col">Действие</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach ($shaurburgers as $key => $shaurburger)
+                                        <tr>
+                                            <th scope="row">{{ $key + 1 }}</th>
+                                            <td>{{ $shaurburger->character->player }}</td>
+                                            <td>{{ $shaurburger->time }}</td>
+                                            <td>
+                                                @if ($shaurburger->last_start != null)
+                                                    {{ $shaurburger->last_start }}
+                                                @else
+                                                    Сегодня не было запуска
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('shaurburgers.delete', ['id' => $shaurburger->id]) }}" class="text-danger">Удалить</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                             <div class="tab-pane fade" id="cosmodrome">
                                 <form method="POST" action="">

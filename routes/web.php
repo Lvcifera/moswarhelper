@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('test', [MainController::class, 'test'])->name('test')->middleware('auth'); // тестирование
+
 /**
  * общие действия
  */

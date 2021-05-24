@@ -2,8 +2,12 @@
 
 namespace App\Console;
 
+use App\Http\Controllers\BotFunctionController;
+use App\Models\Patrol;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Http;
 
 class Kernel extends ConsoleKernel
 {
@@ -13,7 +17,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\Patrol::class,
     ];
 
     /**
@@ -24,7 +28,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('patrol:start')->everyTenMinutes();
     }
 
     /**

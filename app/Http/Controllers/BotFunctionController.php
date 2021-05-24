@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PatrolRequest;
 use App\Models\Licence;
 use App\Models\Patrol;
-use App\Models\Character;
 use Carbon\Carbon;
 
 class BotFunctionController extends Controller

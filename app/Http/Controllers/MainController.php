@@ -10,6 +10,7 @@ use App\Http\Requests\PetriksRequest;
 use App\Http\Requests\TeethRequest;
 use App\Models\Character;
 use App\Models\Licence;
+use App\Models\Patrol;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -58,8 +59,6 @@ class MainController extends Controller
             ->where('user_id', '=', auth()->id())
             ->where('player', '=', urldecode($response->cookies()->toArray()[3]['Value']))
             ->first();
-        //dd($userLicence);
-        //$userLicences = User::find(auth()->id())->licences;
         if ($userLicence == null) {
             return redirect()->route('auth')->with('danger', 'У вас нет лицензии на этого персонажа');
         }
@@ -137,5 +136,57 @@ class MainController extends Controller
     public function manual()
     {
         return view('manual');
+    }
+
+    public function test()
+    {
+        $patrols = $task = Patrol::with('character')
+            ->get();
+
+        foreach ($patrols as $patrol) {
+            /**
+             * зайдем в закоулки, проверим активно
+             * ли патрулирование или на сегодня
+             * больше нет времени
+             */
+            $flag = true;
+            $alley = Http::withBody('','application/x-www-form-urlencoded; charset=UTF-8')
+                ->withCookies(
+                    [
+                        'PHPSESSID' => $patrol->character->PHPSESSID,
+                        'authkey' => $patrol->character->authkey,
+                        'userid' => $patrol->character->userid,
+                        'player' => $patrol->character->player,
+                        'player_id' => $patrol->character->player_id,
+                    ], 'moswar.ru')->get('https://www.moswar.ru/alley/');
+            $time_lost = explode("На сегодня Вы уже истратили все время патрулирования", $alley->body());
+            $patrol_active = explode("Улизнуть с патрулирования", $alley->body());
+            if (count($time_lost) == 2) { // на сегодня больше нет времени
+                $flag = false;
+            } elseif (count($patrol_active) == 2) { // на данный момент персонаж уже патрулирует
+                $flag = false;
+            }
+
+            /**
+             * если время для патрулирования еще есть
+             * и персонаж на данный момент не патрулирует,
+             * отправляем его в патруль
+             */
+            if ($flag) {
+                $content = 'action=patrol&region=' . $patrol->getRawOriginal('region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
+                $patrol_start = Http::withBody($content,
+                    'application/x-www-form-urlencoded; charset=UTF-8')
+                    ->withCookies(
+                        [
+                            'PHPSESSID' => $patrol->character->PHPSESSID,
+                            'authkey' => $patrol->character->authkey,
+                            'userid' => $patrol->character->userid,
+                            'player' => $patrol->character->player,
+                            'player_id' => $patrol->character->player_id,
+                        ], 'moswar.ru')->post('https://www.moswar.ru/alley/');
+                $patrol->last_start = Carbon::now();
+                $patrol->save();
+            }
+        }
     }
 }

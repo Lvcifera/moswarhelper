@@ -33,6 +33,12 @@ Route::post('petriks/', [ModuleController::class, 'petriksWork'])->name('petriks
 Route::post('gifts/', [ModuleController::class, 'giftsWork'])->name('gifts.work'); // дарение подарков
 
 /**
+ * функции бота
+ */
+Route::post('botFunctions/', [BotFunctionController::class, 'patrolCreate'])->name('patrol.create'); // создание задачи патруля
+Route::get('botFunctions/patroldel/{id}', [BotFunctionController::class, 'patrolDelete'])->name('patrol.delete'); // удаление задачи патруля
+
+/**
  * страницы приложения
  */
 Route::get('/', function () {

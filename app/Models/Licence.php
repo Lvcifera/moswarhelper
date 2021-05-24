@@ -13,7 +13,7 @@ class Licence extends Model
 
     public function characters()
     {
-        return $this->hasMany(Player::class);
+        return $this->hasMany(Character::class);
     }
 
     public function user()

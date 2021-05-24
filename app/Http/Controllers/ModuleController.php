@@ -8,7 +8,7 @@ use App\Http\Requests\MoscowpolyRequest;
 use App\Http\Requests\PetriksRequest;
 use App\Http\Requests\TeethRequest;
 use App\Models\Licence;
-use App\Models\Player;
+use App\Models\Character;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
@@ -25,7 +25,7 @@ class ModuleController extends Controller
 
     public function teethWork(TeethRequest $request)
     {
-        $playerData = Player::where('player', '=', $request->player)->first();
+        $playerData = Character::where('player', '=', $request->player)->first();
 
         $start_time = new Carbon();
         $count = 0;
@@ -97,7 +97,7 @@ class ModuleController extends Controller
 
     public function moscowpolyWork(MoscowpolyRequest $request)
     {
-        $playerData = Player::where('player', '=', $request->player)->first();
+        $playerData = Character::where('player', '=', $request->player)->first();
 
         $start_time = new Carbon();
         $count = 0;
@@ -154,7 +154,7 @@ class ModuleController extends Controller
 
     public function gypsyWork(GypsyRequest $request)
     {
-        $playerData = Player::where('player', '=', $request->player)->first();
+        $playerData = Character::where('player', '=', $request->player)->first();
 
         $start_time = new Carbon();
         $count = 0;
@@ -205,7 +205,7 @@ class ModuleController extends Controller
 
     public function petriksWork(PetriksRequest $request)
     {
-        $playerData = Player::where('player', '=', $request->player)->first();
+        $playerData = Character::where('player', '=', $request->player)->first();
 
         $start_time = new Carbon();
         $count = 0;
@@ -239,7 +239,7 @@ class ModuleController extends Controller
 
     public function giftsWork(GiftsRequest $request)
     {
-        $playerData = Player::where('player', '=', $request->player)->first();
+        $playerData = Character::where('player', '=', $request->player)->first();
 
         $start_time = new Carbon();
         /**

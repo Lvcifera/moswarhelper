@@ -43,7 +43,7 @@ class User extends Authenticatable
 
     public function players()
     {
-        return $this->hasMany(Player::class);
+        return $this->hasMany(Character::class);
     }
 
     public function licences()

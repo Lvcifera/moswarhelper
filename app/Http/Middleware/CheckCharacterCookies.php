@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Player;
+use App\Models\Character;
 use Closure;
 use Illuminate\Http\Request;
 

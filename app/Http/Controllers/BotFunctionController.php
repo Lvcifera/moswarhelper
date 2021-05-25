@@ -17,7 +17,7 @@ class BotFunctionController extends Controller
             ->where('user_id', '=', auth()->id())
             ->where('end', '>', Carbon::now())
             ->get();
-        $patrols = Patrol::with('character')
+        $patrols = Patrol::with('character.licence')
             ->where('user_id', '=', auth()->id())
             ->get();
         $shaurburgers = Shaurburgers::with('character')

@@ -39,8 +39,9 @@ class Shaurburgers extends Command
      */
     public function handle()
     {
-        $shaurburgers = \App\Models\Shaurburgers::with('character')
-            ->get();
+        $shaurburgers = \App\Models\Shaurburgers::whereHas('character.licence', function ($query) {
+            $query->where('end', '>', Carbon::now());
+        })->get();
 
         foreach ($shaurburgers as $shaurburger) {
             /**

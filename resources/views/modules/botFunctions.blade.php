@@ -106,7 +106,11 @@
                                     </thead>
                                     <tbody>
                                     @foreach ($patrols as $key => $patrol)
-                                        <tr>
+                                        @if ($patrol->character->licence->end < \Carbon\Carbon::now())
+                                            <tr class="table-danger">
+                                        @else
+                                            <tr class="table">
+                                        @endif
                                             <th scope="row">{{ $key + 1 }}</th>
                                             <td>{{ $patrol->character->player }}</td>
                                             <td>{{ $patrol->region }}</td>
@@ -180,7 +184,11 @@
                                     </thead>
                                     <tbody>
                                     @foreach ($shaurburgers as $key => $shaurburger)
-                                        <tr>
+                                        @if ($shaurburger->character->licence->end < \Carbon\Carbon::now())
+                                            <tr class="table-danger">
+                                        @else
+                                            <tr class="table">
+                                        @endif
                                             <th scope="row">{{ $key + 1 }}</th>
                                             <td>{{ $shaurburger->character->player }}</td>
                                             <td>{{ $shaurburger->time }}</td>

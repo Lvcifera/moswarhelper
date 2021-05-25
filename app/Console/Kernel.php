@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('patrol:start')->everyTenMinutes();
-        $schedule->command('shaurburgers:start')->everyThirtyMinutes();
+        $schedule->command('shaurburgers:start')->everyFifteenMinutes();
     }
 
     /**

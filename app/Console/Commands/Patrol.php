@@ -39,8 +39,9 @@ class Patrol extends Command
      */
     public function handle()
     {
-        $patrols = $task = \App\Models\Patrol::with('character')
-            ->get();
+        $patrols = \App\Models\Patrol::whereHas('character.licence', function ($query) {
+            $query->where('end', '>', Carbon::now());
+        })->get();
 
         foreach ($patrols as $patrol) {
             /**

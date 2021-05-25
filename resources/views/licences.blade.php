@@ -57,7 +57,7 @@
                     @if ($licence->end < \Carbon\Carbon::now())
                         <tr class="table-danger">
                     @else
-                        <tr class="table-success">
+                        <tr class="table">
                     @endif
                         <th scope="row">{{ $key + 1 }}</th>
                         <td>{{ $licence->player }}</td>

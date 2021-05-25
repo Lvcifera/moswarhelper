@@ -10,6 +10,7 @@ class Character extends Model
 
     public function licence()
     {
-        return $this->hasOne(Licence::class);
+        return $this->belongsTo(Licence::class, 'licence_id', 'id');
     }
+
 }

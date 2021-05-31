@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Classes\SendRequest;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -50,15 +51,10 @@ class Patrol extends Command
              * больше нет времени
              */
             $flag = true;
-            $alley = Http::withBody('','application/x-www-form-urlencoded; charset=UTF-8')
-                ->withCookies(
-                    [
-                        'PHPSESSID' => $patrol->character->PHPSESSID,
-                        'authkey' => $patrol->character->authkey,
-                        'userid' => $patrol->character->userid,
-                        'player' => $patrol->character->player,
-                        'player_id' => $patrol->character->player_id,
-                    ], 'moswar.ru')->get('https://www.moswar.ru/alley/');
+            $alley = SendRequest::getRequest(
+                $patrol->character,
+                'https://www.moswar.ru/alley/'
+            );
             $time_lost = explode("На сегодня Вы уже истратили все время патрулирования", $alley->body());
             $patrol_active = explode("Улизнуть с патрулирования", $alley->body());
             if (count($time_lost) == 2) { // на сегодня больше нет времени
@@ -74,16 +70,12 @@ class Patrol extends Command
              */
             if ($flag) {
                 $content = 'action=patrol&region=' . $patrol->getRawOriginal('region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
-                $patrol_start = Http::withBody($content,
-                    'application/x-www-form-urlencoded; charset=UTF-8')
-                    ->withCookies(
-                        [
-                            'PHPSESSID' => $patrol->character->PHPSESSID,
-                            'authkey' => $patrol->character->authkey,
-                            'userid' => $patrol->character->userid,
-                            'player' => $patrol->character->player,
-                            'player_id' => $patrol->character->player_id,
-                        ], 'moswar.ru')->post('https://www.moswar.ru/alley/');
+                $patrol_start = SendRequest::postRequest(
+                    $patrol->character,
+                    $content,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/alley/'
+                );
                 $patrol->last_start = Carbon::now();
                 $patrol->save();
             }

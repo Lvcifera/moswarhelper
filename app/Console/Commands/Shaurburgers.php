@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Classes\SendRequest;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -50,15 +51,10 @@ class Shaurburgers extends Command
              * больше нет времени
              */
             $flag = true;
-            $work = Http::withBody('','application/x-www-form-urlencoded; charset=UTF-8')
-                ->withCookies(
-                    [
-                        'PHPSESSID' => $shaurburger->character->PHPSESSID,
-                        'authkey' => $shaurburger->character->authkey,
-                        'userid' => $shaurburger->character->userid,
-                        'player' => $shaurburger->character->player,
-                        'player_id' => $shaurburger->character->player_id,
-                    ], 'moswar.ru')->get('https://www.moswar.ru/shaurburgers/');
+            $work = SendRequest::getRequest(
+                $shaurburger->character,
+                'https://www.moswar.ru/shaurburgers/'
+            );
             $time_lost = explode("На сегодня вы отработали свою максимальную смену", $work->body());
             $shaurburger_active = explode("1 час", $work->body());
             if (count($time_lost) == 2) { // на сегодня больше нет времени
@@ -74,16 +70,12 @@ class Shaurburgers extends Command
              */
             if ($flag) {
                 $content = 'action=work&time=' . $shaurburger->getRawOriginal('time') . '&__ajax=1&return_url=/shaurburgers/';
-                $shaurburgers_start = Http::withBody($content,
-                    'application/x-www-form-urlencoded; charset=UTF-8')
-                    ->withCookies(
-                        [
-                            'PHPSESSID' => $shaurburger->character->PHPSESSID,
-                            'authkey' => $shaurburger->character->authkey,
-                            'userid' => $shaurburger->character->userid,
-                            'player' => $shaurburger->character->player,
-                            'player_id' => $shaurburger->character->player_id,
-                        ], 'moswar.ru')->post('https://www.moswar.ru/shaurburgers/');
+                $shaurburgers_start = SendRequest::postRequest(
+                    $shaurburger->character,
+                    $content,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/shaurburgers/'
+                );
                 $shaurburger->last_start = Carbon::now();
                 $shaurburger->save();
             }

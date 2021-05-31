@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Patrol;
-use App\Models\Shaurburgers;
+use App\Classes\SendRequest;
 use App\Http\Requests\LicenceRequest;
 use App\Models\Character;
 use App\Models\Licence;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use PhpParser\Builder;
+use simplehtmldom\HtmlDocument;
 
 class MainController extends Controller
 {
@@ -46,6 +45,7 @@ class MainController extends Controller
                 'player' => $response->cookies()->toArray()[3]['Value'],
                 'player_id' => $response->cookies()->toArray()[4]['Value'],
             ], 'moswar.ru')->get('https://www.moswar.ru/berezka/section/mixed/');
+
 
         /**
          * проверяем, есть ли у текущего пользователя
@@ -136,9 +136,15 @@ class MainController extends Controller
 
     public function test()
     {
-        $patrols = Patrol::whereHas('character.licence', function ($query) {
-            $query->where('end', '>', Carbon::now());
-        })->get();
-        dd($patrols);
+        $player = Character::find(1);
+
+        $playerPage = SendRequest::getRequest($player, 'https://www.moswar.ru/alley/');
+
+        $document = new HtmlDocument();
+        $document->load($playerPage->body());
+        //$result = $document->find('button[id=alley-patrol-button]');
+        $result = $document->find('p[class=timeleft]');
+        //$result = $document->find('div[id=home-garage] div[class=object-thumb] div[class=padding] a');
+        dd($result[0]->plaintext);
     }
 }

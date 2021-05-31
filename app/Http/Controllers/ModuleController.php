@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\SendRequest;
 use App\Http\Requests\GiftsRequest;
 use App\Http\Requests\GypsyRequest;
 use App\Http\Requests\MoscowpolyRequest;
@@ -29,46 +30,38 @@ class ModuleController extends Controller
 
         $start_time = new Carbon();
         $count = 0;
+        $content = 'key=' . $playerData->param . '&' .
+            'action=buy&' . 'item=6603&amount=&return_url=%2Fberezka%2Fsection%2Fmixed%2F&' .
+            'type=&ajax_ext=2&autochange_honey=0';
         while ($count < $request->teethCount) {
             /**
              * покупаем зубной ящик
              */
-            $buy = Http::withBody('key=' . $playerData->param . '&' .
-                'action=buy&' . 'item=6603&amount=&return_url=%2Fberezka%2Fsection%2Fmixed%2F&' .
-                'type=&ajax_ext=2&autochange_honey=0', 'application/x-www-form-urlencoded; charset=UTF-8')
-                ->withCookies(
-                    [
-                        'PHPSESSID' => $playerData->PHPSESSID,
-                        'authkey' => $playerData->authkey,
-                        'userid' => $playerData->userid,
-                        'player' => urlencode($playerData->player),
-                        'player_id' => $playerData->player_id,
-                    ], 'moswar.ru')->post('https://www.moswar.ru/shop/json/');
+            $buy = SendRequest::postRequest(
+                $playerData,
+                $content,
+                'application/x-www-form-urlencoded; charset=UTF-8',
+                'https://www.moswar.ru/shop/json/'
+            );
+
             /**
              * получаем ID купленного зубного ящика
              */
-            $getBoxID = Http::withCookies(
-                [
-                    'PHPSESSID' => $playerData->PHPSESSID,
-                    'authkey' => $playerData->authkey,
-                    'userid' => $playerData->userid,
-                    'player' => urlencode($playerData->player),
-                    'player_id' => $playerData->player_id,
-                ], 'moswar.ru')->get('https://www.moswar.ru/player');
+            $getBoxID = SendRequest::getRequest(
+                $playerData,
+                'https://www.moswar.ru/player'
+            );
             $boxesData = explode('id="inventory-box_teeth-btn" data-action="use" data-id="', $getBoxID->body());
             $boxID = mb_strcut(array_pop($boxesData), 0, 10);
+
             /**
              * открываем купленный зубной ящик,
              * используя его уникальный ID
              */
-            $getBoxID = Http::withCookies(
-                [
-                    'PHPSESSID' => $playerData->PHPSESSID,
-                    'authkey' => $playerData->authkey,
-                    'userid' => $playerData->userid,
-                    'player' => urlencode($playerData->player),
-                    'player_id' => $playerData->player_id,
-                ], 'moswar.ru')->get('https://www.moswar.ru/player/json/use/' . $boxID . '/');
+            $getBoxID = SendRequest::getRequest(
+                $playerData,
+                'https://www.moswar.ru/player/json/use/' . $boxID . '/'
+            );
             if ($buy->json('result') == 1) {
                 $count++;
             }

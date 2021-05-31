@@ -28,6 +28,5 @@ class SendRequest {
                     'player' => $playerData->player,
                     'player_id' => $playerData->player_id,
                 ], 'moswar.ru')->post($url);
-
     }
 }

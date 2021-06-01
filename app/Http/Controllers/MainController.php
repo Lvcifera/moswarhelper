@@ -138,12 +138,10 @@ class MainController extends Controller
     {
         $player = Character::find(1);
 
-        $playerPage = SendRequest::getRequest($player, 'https://www.moswar.ru/player/');
+        $playerPage = SendRequest::getRequest($player, 'https://www.moswar.ru/alley/');
 
         $document = new HtmlDocument();
         $document->load($playerPage->body());
-        $getBoxID = $document->find('div[id=inventory-box_teeth-btn]');
-        dd(end($getBoxID)->attr['data-id']);
 
         /**
          * если на сегодня израсходовано все
@@ -153,6 +151,7 @@ class MainController extends Controller
         if ($timeleft == 'На сегодня Вы уже истратили все время патрулирования.') {
             $flag = false;
         }
+        dd($flag);
         //$result = $document->find('button[id=alley-patrol-button]');
         //$result = $document->find('div[id=home-garage] div[class=object-thumb] div[class=padding] a');
     }

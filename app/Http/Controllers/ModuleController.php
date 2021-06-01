@@ -47,7 +47,7 @@ class ModuleController extends Controller
                 $end_time = new Carbon();
                 $time = $end_time->diffInSeconds($start_time);
                 return redirect()->route('teeth')->with('danger', 'Действие выполнено частично, персонаж находится в стенке,
-                 куплено ' . $count . ' зубных ящиков. Затраченное время ' . gmdate('H:i:s', $time) . ' секунд');
+                 Куплено ' . $count . ' зубных ящиков. Затраченное время ' . gmdate('H:i:s', $time) . ' секунд');
             } else {
                 /**
                  * покупаем зубной ящик
@@ -104,32 +104,48 @@ class ModuleController extends Controller
         $contentGetPrize = 'action=moscowpoly_activate&ajax=1&__referrer=%2Fhome%2F&return_url=%2Fhome%2F';
         while ($count < $request->cubesCount) {
             /**
-             * бросаем кубик
+             * проверяем, не находится ли персонаж
+             * в стенке в данный момент времени
              */
-            $roll = SendRequest::postRequest(
-                $playerData,
-                $contentRoll,
-                'application/x-www-form-urlencoded; charset=UTF-8',
-                'https://www.moswar.ru/home/moscowpoly_roll/'
-            );
-            if (!$roll->json('result')) {
+            $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $document = new HtmlDocument();
+            $document->load($playerPage->body());
+            $title = $document->find('title');
+
+            if ($title[0]->_[5] == 'Стенка на стенку') {
                 $end_time = new Carbon();
                 $time = $end_time->diffInSeconds($start_time);
-                return redirect()->route('moscowpoly')->with('danger', 'У вас закончились кубики.
+                return redirect()->route('moscowpoly')->with('danger', 'Действие выполнено частично, персонаж находится в стенке.
                 Брошено ' . $count . '. Затраченное время ' . $time . ' секунд');
-                break;
-            }
-            $count++;
+            } else {
+                /**
+                 * бросаем кубик
+                 */
+                $roll = SendRequest::postRequest(
+                    $playerData,
+                    $contentRoll,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/home/moscowpoly_roll/'
+                );
+                if (!$roll->json('result')) {
+                    $end_time = new Carbon();
+                    $time = $end_time->diffInSeconds($start_time);
+                    return redirect()->route('moscowpoly')->with('danger', 'У вас закончились кубики.
+                Брошено ' . $count . '. Затраченное время ' . $time . ' секунд');
+                    break;
+                }
+                $count++;
 
-            /**
-             * забираем приз
-             */
-            $get_prize = SendRequest::postRequest(
-                $playerData,
-                $contentGetPrize,
-                'application/x-www-form-urlencoded; charset=UTF-8',
-                'https://www.moswar.ru/home/moscowpoly_activate/'
-            );
+                /**
+                 * забираем приз
+                 */
+                $get_prize = SendRequest::postRequest(
+                    $playerData,
+                    $contentGetPrize,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/home/moscowpoly_activate/'
+                );
+            }
         }
         $end_time = new Carbon();
         $time = $end_time->diffInSeconds($start_time);
@@ -156,25 +172,41 @@ class ModuleController extends Controller
         $contentAutoGame = 'action=gypsyAuto';
         while ($count < $request->gypsyCount) {
             /**
-             * начинаем игру
+             * проверяем, не находится ли персонаж
+             * в стенке в данный момент времени
              */
-            $start_game = SendRequest::postRequest(
-                $playerData,
-                $contentStartGame,
-                'application/x-www-form-urlencoded; charset=UTF-8',
-                'https://www.moswar.ru/camp/gypsy/'
-            );
+            $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $document = new HtmlDocument();
+            $document->load($playerPage->body());
+            $title = $document->find('title');
 
-            /**
-             * ставим автоматическую игру
-             */
-            $auto_game = SendRequest::postRequest(
-                $playerData,
-                $contentAutoGame,
-                'application/x-www-form-urlencoded; charset=UTF-8',
-                'https://www.moswar.ru/camp/gypsy/'
-            );
-            $count++;
+            if ($title[0]->_[5] == 'Стенка на стенку') {
+                $end_time = new Carbon();
+                $time = $end_time->diffInSeconds($start_time);
+                return redirect()->route('gypsy')->with('danger', 'Действие выполнено частично, персонаж находится в стенке.
+                Сыграно ' . $count . ' раз. Затраченное время ' . $time . ' секунд');
+            } else {
+                /**
+                 * начинаем игру
+                 */
+                $start_game = SendRequest::postRequest(
+                    $playerData,
+                    $contentStartGame,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/camp/gypsy/'
+                );
+
+                /**
+                 * ставим автоматическую игру
+                 */
+                $auto_game = SendRequest::postRequest(
+                    $playerData,
+                    $contentAutoGame,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/camp/gypsy/'
+                );
+                $count++;
+            }
         }
         $end_time = new Carbon();
         $time = $end_time->diffInSeconds($start_time);
@@ -199,13 +231,29 @@ class ModuleController extends Controller
         $count = 0;
         $content = 'player=' . $playerData->player_id . '&__ajax=1&return_url=/factory/';
         while ($count < $request->nanoCount) {
-            $doPetriks = SendRequest::postRequest(
-                $playerData,
-                $content,
-                'application/x-www-form-urlencoded; charset=UTF-8',
-                'https://www.moswar.ru/factory/start-petriks/'
-            );
-            $count++;
+            /**
+             * проверяем, не находится ли персонаж
+             * в стенке в данный момент времени
+             */
+            $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $document = new HtmlDocument();
+            $document->load($playerPage->body());
+            $title = $document->find('title');
+
+            if ($title[0]->_[5] == 'Стенка на стенку') {
+                $end_time = new Carbon();
+                $time = $end_time->diffInSeconds($start_time);
+                return redirect()->route('gypsy')->with('danger', 'Действие выполнено частично, персонаж находится в стенке.
+                Сыграно ' . $count . ' раз. Затраченное время ' . $time . ' секунд');
+            } else {
+                $doPetriks = SendRequest::postRequest(
+                    $playerData,
+                    $content,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/factory/start-petriks/'
+                );
+                $count++;
+            }
         }
         $end_time = new Carbon();
         $time = $end_time->diffInSeconds($start_time);

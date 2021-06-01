@@ -11,6 +11,7 @@ use App\Http\Requests\TeethRequest;
 use App\Models\Licence;
 use App\Models\Character;
 use Carbon\Carbon;
+use simplehtmldom\HtmlDocument;
 
 class ModuleController extends Controller
 {
@@ -34,42 +35,48 @@ class ModuleController extends Controller
             'type=&ajax_ext=2&autochange_honey=0';
         while ($count < $request->teethCount) {
             /**
-             * покупаем зубной ящик
+             * проверяем, не находится ли персонаж
+             * в стенке в данный момент времени
              */
-            $buy = SendRequest::postRequest(
-                $playerData,
-                $content,
-                'application/x-www-form-urlencoded; charset=UTF-8',
-                'https://www.moswar.ru/shop/json/'
-            );
+            $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/player/');
+            $document = new HtmlDocument();
+            $document->load($playerPage->body());
+            $title = $document->find('title');
 
-            /**
-             * получаем ID купленного зубного ящика
-             */
-            $getBoxID = SendRequest::getRequest(
-                $playerData,
-                'https://www.moswar.ru/player'
-            );
-            $boxesData = explode('id="inventory-box_teeth-btn" data-action="use" data-id="', $getBoxID->body());
-            $boxID = mb_strcut(array_pop($boxesData), 0, 10);
-
-            /**
-             * открываем купленный зубной ящик,
-             * используя его уникальный ID
-             */
-            $getBoxID = SendRequest::getRequest(
-                $playerData,
-                'https://www.moswar.ru/player/json/use/' . $boxID . '/'
-            );
-            if ($buy->json('result') == 1) {
-                $count++;
-            }
-            if ($buy->json('result') == 0) {
+            if ($title[0]->_[5] == 'Стенка на стенку') {
                 $end_time = new Carbon();
                 $time = $end_time->diffInSeconds($start_time);
-                return redirect()->route('teeth')->with('success', 'Действие выполнено частично, закончились зубы,
+                return redirect()->route('teeth')->with('danger', 'Действие выполнено частично, персонаж находится в стенке,
                  куплено ' . $count . ' зубных ящиков. Затраченное время ' . gmdate('H:i:s', $time) . ' секунд');
-                break;
+            } else {
+                /**
+                 * покупаем зубной ящик
+                 */
+                $buy = SendRequest::postRequest(
+                    $playerData,
+                    $content,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/shop/json/'
+                );
+
+                /**
+                 * открываем купленный зубной ящик,
+                 * используя его уникальный ID
+                 */
+                $getBoxID = $document->find('div[id=inventory-box_teeth-btn]');
+                $openBox = SendRequest::getRequest(
+                    $playerData,
+                    'https://www.moswar.ru/player/json/use/' . end($getBoxID)->attr['data-id'] . '/'
+                );
+                if ($buy->json('result') == 1) {
+                    $count++;
+                } elseif ($buy->json('result') == 0) {
+                    $end_time = new Carbon();
+                    $time = $end_time->diffInSeconds($start_time);
+                    return redirect()->route('teeth')->with('success', 'Действие выполнено частично, закончились зубы,
+                 куплено ' . $count . ' зубных ящиков. Затраченное время ' . gmdate('H:i:s', $time) . ' секунд');
+                    break;
+                }
             }
         }
         $end_time = new Carbon();

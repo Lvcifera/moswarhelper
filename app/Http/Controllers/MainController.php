@@ -136,23 +136,23 @@ class MainController extends Controller
 
     public function test()
     {
-        $player = Character::find(1);
+        $player = Character::find(5);
 
-        $playerPage = SendRequest::getRequest($player, 'https://www.moswar.ru/alley/');
-
+        $playerPage = SendRequest::getRequest($player, 'https://www.moswar.ru/shaurburgers/');
         $document = new HtmlDocument();
         $document->load($playerPage->body());
 
         /**
-         * если на сегодня израсходовано все
-         * время на патрулирования
+         * ищем кнопку старта работы,
+         * empty() => true, если ее нет на странице;
+         * либо если время работы на сегодня вышло
          */
-        $timeleft = $document->find('p[class=timeleft]')[0]->plaintext;
-        if ($timeleft == 'На сегодня Вы уже истратили все время патрулирования.') {
+        $flag = true;
+        $shaurProcess = $document->find("span[onclick=$(this).addClass('disabled');$('#workForm').trigger('submit');]");
+        $timeleft = isset($document->find('span[class=error]')[0]->_[5]);
+        if (empty($shaurProcess) || $timeleft) {
             $flag = false;
         }
         dd($flag);
-        //$result = $document->find('button[id=alley-patrol-button]');
-        //$result = $document->find('div[id=home-garage] div[class=object-thumb] div[class=padding] a');
     }
 }

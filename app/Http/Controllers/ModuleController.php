@@ -38,7 +38,10 @@ class ModuleController extends Controller
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/player/');
+            $playerPage = SendRequest::getRequest(
+                $playerData,
+                'https://www.moswar.ru/camp/'
+            );
             $document = new HtmlDocument();
             $document->load($playerPage->body());
             $title = $document->find('title');
@@ -61,8 +64,15 @@ class ModuleController extends Controller
 
                 /**
                  * открываем купленный зубной ящик,
-                 * используя его уникальный ID
+                 * используя его уникальный ID,
+                 * предварительно обновив страницу
                  */
+                $reloadPage = SendRequest::getRequest(
+                    $playerData,
+                    'https://www.moswar.ru/player/'
+                );
+                $document = new HtmlDocument();
+                $document->load($reloadPage->body());
                 $getBoxID = $document->find('div[id=inventory-box_teeth-btn]');
                 $openBox = SendRequest::getRequest(
                     $playerData,

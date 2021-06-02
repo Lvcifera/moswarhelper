@@ -6,6 +6,7 @@ use App\Classes\SendRequest;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use simplehtmldom\HtmlDocument;
 
 class Shaurburgers extends Command
 {
@@ -45,29 +46,21 @@ class Shaurburgers extends Command
         })->get();
 
         foreach ($shaurburgers as $shaurburger) {
-            /**
-             * зайдем в шаурбургерс, проверим активна
-             * ли работа или на сегодня
-             * больше нет времени
-             */
-            $flag = true;
-            $work = SendRequest::getRequest(
-                $shaurburger->character,
-                'https://www.moswar.ru/shaurburgers/'
-            );
-            $time_lost = explode("На сегодня вы отработали свою максимальную смену", $work->body());
-            $shaurburger_active = explode("1 час", $work->body());
-            if (count($time_lost) == 2) { // на сегодня больше нет времени
-                $flag = false;
-            } elseif (count($shaurburger_active) == 1) { // на данный момент персонаж уже работает
-                $flag = false;
-            }
+            $playerPage = SendRequest::getRequest($shaurburger->character, 'https://www.moswar.ru/shaurburgers/');
+            $document = new HtmlDocument();
+            $document->load($playerPage->body());
 
             /**
-             * если время для работы еще есть
-             * и персонаж на данный момент не работает,
-             * отправляем его в работу
+             * ищем кнопку старта работы,
+             * empty() => true, если ее нет на странице;
+             * либо если время работы на сегодня вышло
              */
+            $flag = true;
+            $shaurProcess = $document->find("span[onclick=$(this).addClass('disabled');$('#workForm').trigger('submit');]");
+            $timeleft = isset($document->find('span[class=error]')[0]->_[5]);
+            if (empty($shaurProcess) || $timeleft) {
+                $flag = false;
+            }
             if ($flag) {
                 $content = 'action=work&time=' . $shaurburger->getRawOriginal('time') . '&__ajax=1&return_url=/shaurburgers/';
                 $shaurburgers_start = SendRequest::postRequest(

@@ -6,6 +6,7 @@ use App\Classes\SendRequest;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use simplehtmldom\HtmlDocument;
 
 class Patrol extends Command
 {
@@ -45,29 +46,21 @@ class Patrol extends Command
         })->get();
 
         foreach ($patrols as $patrol) {
-            /**
-             * зайдем в закоулки, проверим активно
-             * ли патрулирование или на сегодня
-             * больше нет времени
-             */
-            $flag = true;
-            $alley = SendRequest::getRequest(
-                $patrol->character,
-                'https://www.moswar.ru/alley/'
-            );
-            $time_lost = explode("На сегодня Вы уже истратили все время патрулирования", $alley->body());
-            $patrol_active = explode("Улизнуть с патрулирования", $alley->body());
-            if (count($time_lost) == 2) { // на сегодня больше нет времени
-                $flag = false;
-            } elseif (count($patrol_active) == 2) { // на данный момент персонаж уже патрулирует
-                $flag = false;
-            }
+            $playerPage = SendRequest::getRequest($patrol->character, 'https://www.moswar.ru/alley/');
+            $document = new HtmlDocument();
+            $document->load($playerPage->body());
 
             /**
-             * если время для патрулирования еще есть
-             * и персонаж на данный момент не патрулирует,
-             * отправляем его в патруль
+             * если на сегодня израсходовано все
+             * время на патрулирование или персонаж
+             * сейчас патрулирует
              */
+            $flag = true;
+            $timeleft = $document->find('p[class=timeleft]')[0]->plaintext;
+            $patrolProcess = $document->find("button[onclick=$('#patrolForm').trigger('submit');]");
+            if ($timeleft == 'На сегодня Вы уже истратили все время патрулирования.' || empty($patrolProcess)) {
+                $flag = false;
+            }
             if ($flag) {
                 $content = 'action=patrol&region=' . $patrol->getRawOriginal('region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
                 $patrol_start = SendRequest::postRequest(

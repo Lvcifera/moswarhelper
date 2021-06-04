@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Kubovich;
 use App\Http\Controllers\BotFunctionController;
 use App\Models\Patrol;
 use Carbon\Carbon;
@@ -19,6 +20,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\Patrol::class,
         Commands\Shaurburgers::class,
+        Commands\Kubovich::class,
     ];
 
     /**
@@ -30,7 +32,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('patrol:start')->everyFifteenMinutes();
-        $schedule->command('shaurburgers:start')->everyMinute();
+        $schedule->command('shaurburgers:start')->everyFifteenMinutes();
+        $schedule->command('kubovich:start')->hourly();
+        $schedule->command('resetKubovichCount:start')->daily();
     }
 
     /**

@@ -63,23 +63,25 @@ class ModuleController extends Controller
                 );
 
                 /**
-                 * открываем купленный зубной ящик,
-                 * используя его уникальный ID,
-                 * предварительно обновив страницу
+                 * если покупка ящика была успешной
                  */
-                $reloadPage = SendRequest::getRequest(
-                    $playerData,
-                    'https://www.moswar.ru/player/'
-                );
-                $document = new HtmlDocument();
-                $document->load($reloadPage->body());
-                $getBoxID = $document->find('div[id=inventory-box_teeth-btn]');
-                $openBox = SendRequest::getRequest(
-                    $playerData,
-                    'https://www.moswar.ru/player/json/use/' . end($getBoxID)->attr['data-id'] . '/'
-                );
                 if ($buy->json('result') == 1) {
-                    $count++;
+                    /**
+                     * открываем купленный зубной ящик,
+                     * используя его уникальный ID,
+                     * предварительно обновив страницу
+                     */
+                    $reloadPage = SendRequest::getRequest(
+                        $playerData,
+                        'https://www.moswar.ru/player/'
+                    );
+                    $document = new HtmlDocument();
+                    $document->load($reloadPage->body());
+                    $getBoxID = $document->find('div[id=inventory-box_teeth-btn]');
+                    $openBox = SendRequest::getRequest(
+                        $playerData,
+                        'https://www.moswar.ru/player/json/use/' . end($getBoxID)->attr['data-id'] . '/'
+                    );
                 } elseif ($buy->json('result') == 0) {
                     $end_time = new Carbon();
                     $time = $end_time->diffInSeconds($start_time);
@@ -87,6 +89,7 @@ class ModuleController extends Controller
                  куплено ' . $count . ' зубных ящиков. Затраченное время ' . gmdate('H:i:s', $time) . ' секунд');
                     break;
                 }
+                $count++;
             }
         }
         $end_time = new Carbon();

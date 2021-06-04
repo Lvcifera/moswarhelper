@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Classes\SendRequest;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 use simplehtmldom\HtmlDocument;
 
 class Patrol extends Command

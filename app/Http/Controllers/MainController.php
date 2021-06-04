@@ -136,23 +136,6 @@ class MainController extends Controller
 
     public function test()
     {
-        $player = Character::find(5);
 
-        $playerPage = SendRequest::getRequest($player, 'https://www.moswar.ru/shaurburgers/');
-        $document = new HtmlDocument();
-        $document->load($playerPage->body());
-
-        /**
-         * ищем кнопку старта работы,
-         * empty() => true, если ее нет на странице;
-         * либо если время работы на сегодня вышло
-         */
-        $flag = true;
-        $shaurProcess = $document->find("span[onclick=$(this).addClass('disabled');$('#workForm').trigger('submit');]");
-        $timeleft = isset($document->find('span[class=error]')[0]->_[5]);
-        if (empty($shaurProcess) || $timeleft) {
-            $flag = false;
-        }
-        dd($flag);
     }
 }

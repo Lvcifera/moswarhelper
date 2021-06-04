@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Classes\SendRequest;
+use App\Http\Requests\CasinoRequest;
 use App\Http\Requests\PatrolRequest;
 use App\Http\Requests\ShaurburgersRequest;
 use App\Http\Requests\TaxesRequest;
+use App\Models\Kubovich;
 use App\Models\Character;
 use App\Models\Licence;
 use App\Models\Patrol;
@@ -31,7 +33,10 @@ class BotFunctionController extends Controller
         $taxes = Taxes::with('character')
             ->where('user_id', '=', auth()->id())
             ->get();
-        return view('modules.botFunctions', compact('players', 'patrols', 'shaurburgers', 'taxes'));
+        $casino = Kubovich::with('character')
+            ->where('user_id', '=', auth()->id())
+            ->get();
+        return view('modules.botFunctions', compact('players', 'patrols', 'shaurburgers', 'taxes', 'casino'));
     }
 
     public function patrolCreate(PatrolRequest $request)
@@ -121,12 +126,24 @@ class BotFunctionController extends Controller
             ->first();
 
         /**
-         * зайдем на страницу хаты и получим айди указанной машины
+         * зайдем на страницу хаты и получим массив всех машин игрока
          */
         $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/home/');
         $document = new HtmlDocument();
         $document->load($playerPage->body());
         $carsInfo = $document->find('div[id=home-garage] div[class=object-thumb] div[class=padding] a');
+
+        /**
+         * если у игрока вообще нет машин
+         * (редкость, но заглушка нужна)
+         */
+        if (empty($carsInfo)) {
+            return redirect()->route('botFunctions')->with('danger', 'У вас нет ни одной машины');
+        }
+
+        /**
+         * получим айди указанной машины
+         */
         $carID = mb_strcut($carsInfo[$request->carNumber - 1]->href, 16, 6);
 
         if ($task == null) {
@@ -156,6 +173,43 @@ class BotFunctionController extends Controller
     {
         $taxes = Taxes::find($id);
         $taxes->delete();
+
+        return redirect()->route('botFunctions')->with('success', 'Задача бомбления успешно удалена');
+    }
+
+    public function casinoCreate(CasinoRequest $request)
+    {
+        $task = Kubovich::where('user_id', '=', auth()->id())
+            ->where('character_id', '=', $request->player)
+            ->first();
+
+        if ($task == null) {
+            $task = new Kubovich();
+            $task->user_id = auth()->id();
+            $task->character_id = $request->player;
+            $task->count = $request->count;
+            $task->today_active = 1;
+            $task->save();
+
+            return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
+        } else {
+            $task = Kubovich::where('user_id', '=', auth()->id())
+                ->where('character_id', '=', $request->player)
+                ->first();
+            $task->user_id = auth()->id();
+            $task->character_id = $request->player;
+            $task->count = $request->count;
+            $task->today_active = 1;
+            $task->update();
+
+            return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
+        }
+    }
+
+    public function casinoDelete($id)
+    {
+        $casino = Kubovich::find($id);
+        $casino->delete();
 
         return redirect()->route('botFunctions')->with('success', 'Задача бомбления успешно удалена');
     }

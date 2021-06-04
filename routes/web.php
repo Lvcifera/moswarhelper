@@ -43,6 +43,8 @@ Route::post('botFunctions/shaurburgers/create', [BotFunctionController::class, '
 Route::get('botFunctions/shaurburgers/{id}', [BotFunctionController::class, 'shaurburgersDelete'])->name('shaurburgers.delete'); // удаление задачи шаурбургерса
 Route::post('botFunctions/taxes/create', [BotFunctionController::class, 'taxesCreate'])->name('taxes.create'); // создание задачи бомбления
 Route::get('botFunctions/taxes/{id}', [BotFunctionController::class, 'taxesDelete'])->name('taxes.delete'); // удаление задачи бомбления
+Route::post('botFunctions/casino/create', [BotFunctionController::class, 'casinoCreate'])->name('casino.create'); // создание задачи кубовича
+Route::get('botFunctions/casino/{id}', [BotFunctionController::class, 'casinoDelete'])->name('casino.delete'); // удаление задачи кубовича
 
 /**
  * страницы приложения

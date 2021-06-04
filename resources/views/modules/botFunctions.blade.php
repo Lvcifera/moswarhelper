@@ -22,7 +22,7 @@
                                 <a class="nav-link" data-toggle="tab" href="#shaurburgers">Шаурбургерс</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#cosmodrome">Космодром</a>
+                                <a class="nav-link" data-toggle="tab" href="#patriotTV">Патриот ТВ</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#taxes">Бомбила</a>
@@ -210,16 +210,16 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="tab-pane fade" id="cosmodrome">
-                                <form method="POST" action="">
+                            <div class="tab-pane fade" id="patriotTV">
+                                <form method="POST" action="{{ route('patriot.create') }}">
                                     @csrf
                                     <div class="form-group row">
                                         <label for="name" class="col-md-4 col-form-label text-md-right">На каком персонаже</label>
                                         <div class="col-md-6">
-                                            <select class="form-select" id="exampleSelect1" name="player">
+                                            <select class="form-select" name="player">
                                                 @if (!$players->isEmpty())
                                                     @foreach ($players as $player)
-                                                        <option>{{ $player->player }}</option>
+                                                        <option value="{{ $player->id }}">{{ $player->player }}</option>
                                                     @endforeach
                                                 @else
                                                     <option>Нет персонажей</option>
@@ -227,7 +227,70 @@
                                             </select>
                                         </div>
                                     </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <label for="name" class="col-md-4 col-form-label text-md-right">Сколько часов смотреть</label>
+                                        <div class="col-md-6">
+                                            <select class="form-select" name="time">
+                                                <option value="1">1 час</option>
+                                                <option value="2">2 часа</option>
+                                                <option value="3">3 часа</option>
+                                                <option value="4">4 часа</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <label for="name" class="col-md-4 col-form-label text-md-right">Начинать смотреть после</label>
+                                        <div class="col-md-6">
+                                            <input type="time" name="time_start" class="form-control">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
+                                    <div class="form-group row mb-0">
+                                        <div class="col-md-6 offset-md-4">
+                                            <button type="submit" class="btn btn-primary">Добавить задачу</button>
+                                        </div>
+                                    </div>
                                 </form>
+                                <br>
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">Номер</th>
+                                        <th scope="col">Персонаж</th>
+                                        <th scope="col">Время</th>
+                                        <th scope="col">Со скольки смотреть</th>
+                                        <th scope="col">Последний запуск</th>
+                                        <th scope="col">Действие</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach ($patriots as $key => $patriot)
+                                        @if ($patriot->character->licence->end < \Carbon\Carbon::now())
+                                            <tr class="table-danger">
+                                        @else
+                                            <tr class="table">
+                                                @endif
+                                                <th scope="row">{{ $key + 1 }}</th>
+                                                <td>{{ $patriot->character->player }}</td>
+                                                <td>{{ $patriot->time }}</td>
+                                                <td>{{ $patriot->time_start }}</td>
+                                                <td>
+                                                    @if ($patriot->last_start != null)
+                                                        {{ $patriot->last_start }}
+                                                    @else
+                                                        Сегодня не было запуска
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <a href="{{ route('patriot.delete', ['id' => $patriot->id]) }}" class="text-danger">Удалить</a>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                             <div class="tab-pane fade" id="taxes">
                                 <form method="POST" action="{{ route('taxes.create') }}">

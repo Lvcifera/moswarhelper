@@ -136,6 +136,26 @@ class MainController extends Controller
 
     public function test()
     {
-
+        $player = Character::find(1);
+        $alleyPage = SendRequest::getRequest(
+            $player,
+            'https://www.moswar.ru/alley/'
+        );
+        $document = new HtmlDocument();
+        $document->load($alleyPage->body());
+        /**
+         * находим кнопку, true, если она есть
+         * false, если ее нет
+         */
+        $patriotTV = isset($document->find("button[onclick=$('#patriottvForm').trigger('submit');]")[0]);
+        /**
+         * истекло ли время, true, если истекло
+         */
+        $timeleft = $document->find('form[id=patriottvForm] p[class=timeleft]')[0]->plaintext;
+        $flag = true;
+        if ($timeleft == 'На сегодня Вы уже истратили все время перед ТВ.' || !$patriotTV) {
+            $flag = false;
+        }
+        dd($flag);
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateKubovichTable extends Migration
+class CreatePatriotTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class CreateKubovichTable extends Migration
      */
     public function up()
     {
-        Schema::create('kubovich', function (Blueprint $table) {
+        Schema::create('patriot', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('character_id');
-            $table->integer('count');
-            $table->integer('today_count');
+            $table->integer('time');
+            $table->time('time_start');
+            $table->timestamp('last_start')->nullable();
             $table->timestamps();
             $table->foreign('user_id')
                 ->references('id')
@@ -40,6 +41,6 @@ class CreateKubovichTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kubovich');
+        Schema::dropIfExists('patriot');
     }
 }

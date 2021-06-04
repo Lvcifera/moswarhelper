@@ -45,6 +45,8 @@ Route::post('botFunctions/taxes/create', [BotFunctionController::class, 'taxesCr
 Route::get('botFunctions/taxes/{id}', [BotFunctionController::class, 'taxesDelete'])->name('taxes.delete'); // удаление задачи бомбления
 Route::post('botFunctions/casino/create', [BotFunctionController::class, 'casinoCreate'])->name('casino.create'); // создание задачи кубовича
 Route::get('botFunctions/casino/{id}', [BotFunctionController::class, 'casinoDelete'])->name('casino.delete'); // удаление задачи кубовича
+Route::post('botFunctions/patriot/create', [BotFunctionController::class, 'patriotCreate'])->name('patriot.create'); // создание задачи просмотра ТВ
+Route::get('botFunctions/patriot/{id}', [BotFunctionController::class, 'patriotDelete'])->name('patriot.delete'); // удаление задачи просмотра ТВ
 
 /**
  * страницы приложения

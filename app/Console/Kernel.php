@@ -33,8 +33,9 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('patrol:start')->everyFifteenMinutes();
         $schedule->command('shaurburgers:start')->everyFifteenMinutes();
+        $schedule->command('patriot:start')->everyThirtyMinutes();
         $schedule->command('kubovich:start')->hourly();
-        $schedule->command('resetKubovichCount:start')->daily();
+        $schedule->command('resetKubovichCount:start')->dailyAt('21:00');
     }
 
     /**

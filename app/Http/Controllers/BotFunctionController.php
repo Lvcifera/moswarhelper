@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Classes\SendRequest;
 use App\Http\Requests\CasinoRequest;
+use App\Http\Requests\PatriotRequest;
 use App\Http\Requests\PatrolRequest;
 use App\Http\Requests\ShaurburgersRequest;
 use App\Http\Requests\TaxesRequest;
 use App\Models\Kubovich;
 use App\Models\Character;
 use App\Models\Licence;
+use App\Models\Patriot;
 use App\Models\Patrol;
 use App\Models\Shaurburgers;
 use App\Models\Taxes;
@@ -36,7 +38,10 @@ class BotFunctionController extends Controller
         $casino = Kubovich::with('character')
             ->where('user_id', '=', auth()->id())
             ->get();
-        return view('modules.botFunctions', compact('players', 'patrols', 'shaurburgers', 'taxes', 'casino'));
+        $patriots = Patriot::with('character')
+            ->where('user_id', '=', auth()->id())
+            ->get();
+        return view('modules.botFunctions', compact('players', 'patrols', 'shaurburgers', 'taxes', 'casino', 'patriots'));
     }
 
     public function patrolCreate(PatrolRequest $request)
@@ -188,7 +193,7 @@ class BotFunctionController extends Controller
             $task->user_id = auth()->id();
             $task->character_id = $request->player;
             $task->count = $request->count;
-            $task->today_active = 1;
+            $task->today_count = 0;
             $task->save();
 
             return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
@@ -199,7 +204,6 @@ class BotFunctionController extends Controller
             $task->user_id = auth()->id();
             $task->character_id = $request->player;
             $task->count = $request->count;
-            $task->today_active = 1;
             $task->update();
 
             return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
@@ -209,6 +213,65 @@ class BotFunctionController extends Controller
     public function casinoDelete($id)
     {
         $casino = Kubovich::find($id);
+        $casino->delete();
+
+        return redirect()->route('botFunctions')->with('success', 'Задача бомбления успешно удалена');
+    }
+
+    public function patriotCreate(PatriotRequest $request)
+    {
+        $task = Patriot::where('user_id', '=', auth()->id())
+            ->where('character_id', '=', $request->player)
+            ->first();
+
+        /**
+         * получаем данные персонажа для запроса
+         */
+        $playerData = Character::where('user_id', '=', auth()->id())
+            ->where('id', '=', $request->player)
+            ->first();
+
+        /**
+         * зайдем на страницу закоулков и узнаем, есть ли на странице форма просмотра ТВ
+         */
+        $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/alley/');
+        $document = new HtmlDocument();
+        $document->load($playerPage->body());
+        $issetPatriot = $document->find('form[id=patriottvForm]');
+
+        /**
+         * если у игрока вообще нет патриота ТВ
+         */
+        if (empty($issetPatriot)) {
+            return redirect()->route('botFunctions')->with('danger', 'У вас нет Патриот ТВ');
+        }
+
+        if ($task == null) {
+            $task = new Patriot();
+            $task->user_id = auth()->id();
+            $task->character_id = $request->player;
+            $task->time = $request->time;
+            $task->time_start = $request->time_start;
+            $task->save();
+
+            return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
+        } else {
+            $task = Patriot::where('user_id', '=', auth()->id())
+                ->where('character_id', '=', $request->player)
+                ->first();
+            $task->user_id = auth()->id();
+            $task->character_id = $request->player;
+            $task->time = $request->time;
+            $task->time_start = $request->time_start;
+            $task->update();
+
+            return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
+        }
+    }
+
+    public function patriotDelete($id)
+    {
+        $casino = Patriot::find($id);
         $casino->delete();
 
         return redirect()->route('botFunctions')->with('success', 'Задача бомбления успешно удалена');

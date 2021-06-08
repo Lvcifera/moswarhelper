@@ -137,25 +137,51 @@ class MainController extends Controller
     public function test()
     {
         $player = Character::find(1);
-        $alleyPage = SendRequest::getRequest(
-            $player,
-            'https://www.moswar.ru/alley/'
-        );
+
+        $arbatPage = SendRequest::getRequest($player, 'https://www.moswar.ru/arbat/');
         $document = new HtmlDocument();
-        $document->load($alleyPage->body());
-        /**
-         * находим кнопку, true, если она есть
-         * false, если ее нет
-         */
-        $patriotTV = isset($document->find("button[onclick=$('#patriottvForm').trigger('submit');]")[0]);
-        /**
-         * истекло ли время, true, если истекло
-         */
-        $timeleft = $document->find('form[id=patriottvForm] p[class=timeleft]')[0]->plaintext;
+        $document->load($arbatPage->body());
+
         $flag = true;
-        if ($timeleft == 'На сегодня Вы уже истратили все время перед ТВ.' || !$patriotTV) {
-            $flag = false;
+        /**
+         * если есть кнопка "Бомбить"
+         */
+        $buttonIsset = isset($document->find('button[class=button ride-button]')[0]);
+
+        /**
+         * отправляем машину бомбить
+         */
+        $content = 'car=885719&__ajax=1&return_url=%2Farbat%2F';
+        if ($buttonIsset) {
+            $taxes = SendRequest::postRequest(
+                $player,
+                $content,
+                'application/x-www-form-urlencoded; charset=UTF-8',
+                'https://www.moswar.ru/automobile/bringup/'
+            );
+            $document->load($taxes->body());
+            $needFuel = isset($document->find('div[id=alert-text]')[0]);
+            if ($needFuel) {
+                $petrolContent = '__ajax=1&return_url=%2Fautomobile%2Fcar%2F917249%2F';
+                /**
+                 * заправим машину, если у нее закончилось топливо
+                 */
+                $buyPetrol = SendRequest::postRequest(
+                    $player,
+                    $petrolContent,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/automobile/buypetrol/885719/'
+                );
+                /**
+                 * затем отправим машину бомбить
+                 */
+                $taxes = SendRequest::postRequest(
+                    $player,
+                    $content,
+                    'application/x-www-form-urlencoded; charset=UTF-8',
+                    'https://www.moswar.ru/automobile/bringup/'
+                );
+            }
         }
-        dd($flag);
     }
 }

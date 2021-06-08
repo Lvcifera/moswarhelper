@@ -90,7 +90,7 @@ class Kubovich extends Command
                  * указано в задании
                  */
                 $count = $item->today_count;
-                while ($count < $item->count) {
+                while ($count <= $item->count) {
                     $pushYellow = $document->find('button[id=push-ellow]');
                     if ($pushYellow[0]->attr['class'] == 'button') {
                          SendRequest::postRequest(

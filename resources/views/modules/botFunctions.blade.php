@@ -89,6 +89,7 @@
                                     </div>
                                     <br>
                                     <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
+                                    <p class="text-info">Периодичность запуска модуля - каждые 15 минут.</p>
                                     <div class="form-group row mb-0">
                                         <div class="col-md-6 offset-md-4">
                                             <button type="submit" class="btn btn-primary">Добавить задачу</button>
@@ -168,6 +169,7 @@
                                     </div>
                                     <br>
                                     <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
+                                    <p class="text-info">Периодичность запуска модуля - каждые 15 минут.</p>
                                     <div class="form-group row mb-0">
                                         <div class="col-md-6 offset-md-4">
                                             <button type="submit" class="btn btn-primary">Добавить задачу</button>
@@ -248,6 +250,7 @@
                                     </div>
                                     <br>
                                     <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
+                                    <p class="text-info">Периодичность запуска модуля - каждые 30 минут.</p>
                                     <div class="form-group row mb-0">
                                         <div class="col-md-6 offset-md-4">
                                             <button type="submit" class="btn btn-primary">Добавить задачу</button>
@@ -318,6 +321,7 @@
                                     </div>
                                     <br>
                                     <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
+                                    <p class="text-info">Периодичность запуска модуля - каждая минута.</p>
                                     <div class="form-group row mb-0">
                                         <div class="col-md-6 offset-md-4">
                                             <button type="submit" class="btn btn-primary">Добавить задачу</button>
@@ -397,6 +401,7 @@
                                     </div>
                                     <br>
                                     <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
+                                    <p class="text-info">Периодичность запуска модуля - каждый час.</p>
                                     <p class="text-info">Ежедневный обмен 20 руды на фишки предусмотрен по умолчанию, отдельной
                                     задачи для этого нет.</p>
                                     <div class="form-group row mb-0">

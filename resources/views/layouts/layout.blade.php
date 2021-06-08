@@ -34,14 +34,13 @@
                         <a class="dropdown-item" href="{{ route('gypsy') }}">Игра с гадалкой</a>
                         <a class="dropdown-item" href="{{ route('petriks') }}">Варка петриков</a>
                         <a class="dropdown-item" href="{{ route('gifts') }}">Дарение подарков</a>
-                        <a class="dropdown-item" href="{{ route('botFunctions') }}">Функции бота</a>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="">Обратная связь</a>
+                    <a class="nav-link" href="{{ route('botFunctions') }}">Функции бота</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="">Что нового?</a>
+                    <a class="nav-link" href="{{ route('news') }}">Новости проекта</a>
                 </li>
             </ul>
 
@@ -58,10 +57,10 @@
                     @endif
                 @else
                     <li class="nav-item">
-                        <a class="nav-link">Баланс {{ auth()->user()->balance }} рублей</a>
+                        <a class="nav-link" href="">Баланс {{ auth()->user()->balance }} рублей</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('auth') }}">Авторизовать персонажей</a>
+                        <a class="nav-link" href="{{ route('characters') }}">Управление персонажами</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('licences') }}">Управление лицензиями</a>
@@ -72,13 +71,10 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="">
-                                {{ __('Обо мне') }}
+                                {{ __('Пополнить баланс') }}
                             </a>
                             <a class="dropdown-item" href="">
-                                {{ __('Редактировать профиль') }}
-                            </a>
-                            <a class="dropdown-item" href="">
-                                {{ __('Мои тикеты') }}
+                                {{ __('Настройки') }}
                             </a>
                             <a class="dropdown-item" href=""
                                onclick="event.preventDefault();

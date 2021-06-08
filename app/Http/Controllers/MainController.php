@@ -6,6 +6,7 @@ use App\Classes\SendRequest;
 use App\Http\Requests\LicenceRequest;
 use App\Models\Character;
 use App\Models\Licence;
+use App\Models\News;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -13,12 +14,15 @@ use simplehtmldom\HtmlDocument;
 
 class MainController extends Controller
 {
-    public function authForm()
+    public function characters()
     {
-        return view('auth');
+        $characters = Character::where('user_id', '=', auth()->id())
+            ->get();
+
+        return view('characters', compact('characters'));
     }
 
-    public function authorizeTry(Request $request)
+    public function characterAdd(Request $request)
     {
         /**
          * запрос на авторизацию персонажа
@@ -30,7 +34,7 @@ class MainController extends Controller
             'remember' => $request->remember
         ]);
         if ($response->cookies()->toArray()[2]['Value'] == 'deleted') {
-            return redirect()->route('auth')->with('danger', 'Некорректные данные для авторизации');
+            return redirect()->route('characters')->with('danger', 'Некорректные данные для авторизации');
         }
 
         /**
@@ -56,7 +60,7 @@ class MainController extends Controller
             ->where('player', '=', urldecode($response->cookies()->toArray()[3]['Value']))
             ->first();
         if ($userLicence == null) {
-            return redirect()->route('auth')->with('danger', 'У вас нет лицензии на этого персонажа');
+            return redirect()->route('characters')->with('danger', 'У вас нет лицензии на этого персонажа');
         }
 
         /**
@@ -92,6 +96,14 @@ class MainController extends Controller
         }
 
         return redirect()->back()->with('success', 'Успешная авторизация');
+    }
+
+    public function characterDelete($id)
+    {
+        $character = Character::find($id);
+        $character->delete();
+
+        return redirect()->route('characters')->with('success', 'Персонаж успешно удален');
     }
 
     public function licences()
@@ -132,6 +144,15 @@ class MainController extends Controller
     public function manual()
     {
         return view('manual');
+    }
+
+    public function news() {
+        return view('news');
+    }
+
+    public function feedbackForm()
+    {
+        return view('feedback');
     }
 
     public function test()

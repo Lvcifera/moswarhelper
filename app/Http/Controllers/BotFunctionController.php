@@ -22,10 +22,10 @@ class BotFunctionController extends Controller
 {
     public function botFunctions()
     {
-        $players = Licence::with('characters')
-            ->where('user_id', '=', auth()->id())
-            ->where('end', '>', Carbon::now())
-            ->get();
+        $characters = Character::where('user_id', '=', auth()->id())
+            ->whereHas('licence', function ($query) {
+                $query->where('end', '>', Carbon::now());
+            })->get();
         $patrols = Patrol::with('character.licence')
             ->where('user_id', '=', auth()->id())
             ->get();
@@ -41,7 +41,7 @@ class BotFunctionController extends Controller
         $patriots = Patriot::with('character')
             ->where('user_id', '=', auth()->id())
             ->get();
-        return view('modules.botFunctions', compact('players', 'patrols', 'shaurburgers', 'taxes', 'casino', 'patriots'));
+        return view('modules.botFunctions', compact('characters', 'patrols', 'shaurburgers', 'taxes', 'casino', 'patriots'));
     }
 
     public function patrolCreate(PatrolRequest $request)
@@ -144,6 +144,8 @@ class BotFunctionController extends Controller
          */
         if (empty($carsInfo)) {
             return redirect()->route('botFunctions')->with('danger', 'У вас нет ни одной машины');
+        } elseif (!isset($carsInfo[$request->carNumber - 1])) {
+            return redirect()->route('botFunctions')->with('danger', 'У вас нет машины с таким номером');
         }
 
         /**

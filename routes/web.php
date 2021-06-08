@@ -22,7 +22,8 @@ Route::get('test', [MainController::class, 'test'])->name('test')->middleware('a
 /**
  * общие действия
  */
-Route::post('auth/', [MainController::class, 'authorizeTry'])->name('authorizeTry'); // попытка авторизации
+Route::post('character/add', [MainController::class, 'characterAdd'])->name('character.add'); // авторизация персонажа
+Route::get('character/delete/{id}', [MainController::class, 'characterDelete'])->name('character.delete'); // удаление персонажа
 Route::post('licences/', [MainController::class, 'licenceAdd'])->name('licence.add'); // добавить лицензию
 
 /**
@@ -54,7 +55,7 @@ Route::get('botFunctions/patriot/{id}', [BotFunctionController::class, 'patriotD
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
-Route::get('auth', [MainController::class, 'authForm'])->name('auth')->middleware('auth'); // форма авторизации
+Route::get('characters', [MainController::class, 'characters'])->name('characters')->middleware('auth'); // форма авторизации персонажа
 Route::get('manual', [MainController::class, 'manual'])->name('manual'); // руководство пользователя
 Route::get('licences', [MainController::class, 'licences'])->name('licences')->middleware('auth'); // лицензии
 Route::get('teeth', [ModuleController::class, 'teeth'])->name('teeth')->middleware('auth');; // зубные ящики
@@ -63,6 +64,7 @@ Route::get('gypsy', [ModuleController::class, 'gypsy'])->name('gypsy')->middlewa
 Route::get('petriks', [ModuleController::class, 'petriks'])->name('petriks')->middleware('auth');; // петрики
 Route::get('gifts', [ModuleController::class, 'gifts'])->name('gifts')->middleware('auth');; // подарки
 Route::get('botFunctions', [BotFunctionController::class, 'botFunctions'])->name('botFunctions')->middleware('auth');; // функции бота
+Route::get('news', [MainController::class, 'news'])->name('news')->middleware('auth'); // новости
 
 Auth::routes();
 

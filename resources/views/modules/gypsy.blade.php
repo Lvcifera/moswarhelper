@@ -17,9 +17,9 @@
                                 <label for="name" class="col-md-4 col-form-label text-md-right">На каком персонаже</label>
                                 <div class="col-md-6">
                                     <select class="form-select" id="exampleSelect1" name="player">
-                                        @if (!$players->isEmpty())
-                                            @foreach ($players as $player)
-                                                <option>{{ $player->player }}</option>
+                                        @if (!$characters->isEmpty())
+                                            @foreach ($characters as $character)
+                                                <option>{{ $character->player }}</option>
                                             @endforeach
                                         @else
                                             <option>Нет персонажей</option>

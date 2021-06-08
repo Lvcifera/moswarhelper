@@ -17,11 +17,11 @@ class ModuleController extends Controller
 {
     public function teeth()
     {
-        $players = Licence::with('characters')
-            ->where('user_id', '=', auth()->id())
-            ->where('end', '>', Carbon::now())
-            ->get();
-        return view('modules.teeth', compact('players'));
+        $characters = Character::where('user_id', '=', auth()->id())
+            ->whereHas('licence', function ($query) {
+            $query->where('end', '>', Carbon::now());
+        })->get();
+        return view('modules.teeth', compact('characters'));
     }
 
     public function teethWork(TeethRequest $request)
@@ -100,11 +100,11 @@ class ModuleController extends Controller
 
     public function moscowpoly()
     {
-        $players = Licence::with('characters')
-            ->where('user_id', '=', auth()->id())
-            ->where('end', '>', Carbon::now())
-            ->get();
-        return view('modules.moscowpoly', compact('players'));
+        $characters = Character::where('user_id', '=', auth()->id())
+            ->whereHas('licence', function ($query) {
+                $query->where('end', '>', Carbon::now());
+            })->get();
+        return view('modules.moscowpoly', compact('characters'));
     }
 
     public function moscowpolyWork(MoscowpolyRequest $request)
@@ -168,11 +168,11 @@ class ModuleController extends Controller
 
     public function gypsy()
     {
-        $players = Licence::with('characters')
-            ->where('user_id', '=', auth()->id())
-            ->where('end', '>', Carbon::now())
-            ->get();
-        return view('modules.gypsy', compact('players'));
+        $characters = Character::where('user_id', '=', auth()->id())
+            ->whereHas('licence', function ($query) {
+                $query->where('end', '>', Carbon::now());
+            })->get();
+        return view('modules.gypsy', compact('characters'));
     }
 
     public function gypsyWork(GypsyRequest $request)
@@ -229,11 +229,11 @@ class ModuleController extends Controller
 
     public function petriks()
     {
-        $players = Licence::with('characters')
-            ->where('user_id', '=', auth()->id())
-            ->where('end', '>', Carbon::now())
-            ->get();
-        return view('modules.petriks', compact('players'));
+        $characters = Character::where('user_id', '=', auth()->id())
+            ->whereHas('licence', function ($query) {
+                $query->where('end', '>', Carbon::now());
+            })->get();
+        return view('modules.petriks', compact('characters'));
     }
 
     public function petriksWork(PetriksRequest $request)
@@ -276,11 +276,11 @@ class ModuleController extends Controller
 
     public function gifts()
     {
-        $players = Licence::with('characters')
-            ->where('user_id', '=', auth()->id())
-            ->where('end', '>', Carbon::now())
-            ->get();
-        return view('modules.gifts', compact('players'));
+        $characters = Character::where('user_id', '=', auth()->id())
+            ->whereHas('licence', function ($query) {
+                $query->where('end', '>', Carbon::now());
+            })->get();
+        return view('modules.gifts', compact('characters'));
     }
 
     public function giftsWork(GiftsRequest $request)

@@ -41,8 +41,9 @@
                 </div>
             </div>
         </div>
+        <br>
         @if ($licences->count() != null)
-            <h1 class="display-6">Ваши лицензии</h1>
+            <h1 class="display-6" align="center">Ваши лицензии</h1>
             <table class="table table-hover">
                 <thead>
                 <tr>

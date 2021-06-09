@@ -113,6 +113,15 @@
     @endif
 
     @yield('content')
+        <footer class="page-footer font-small unique-color-dark pt-4">
+            <div class="container">
+                <ul class="list-unstyled list-inline text-center py-2">
+                    <li class="list-inline-item">
+                        <p>Поддержка в Skype: MoswarHelper</p>
+                    </li>
+                </ul>
+            </div>
+        </footer>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

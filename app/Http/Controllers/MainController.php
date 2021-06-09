@@ -7,6 +7,7 @@ use App\Http\Requests\LicenceRequest;
 use App\Models\Character;
 use App\Models\Licence;
 use App\Models\News;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -121,8 +122,15 @@ class MainController extends Controller
         $licence = Licence::where('user_id', '=', auth()->id())
             ->where('player', '=', $request->player)
             ->first();
+        if ($request->monthCount * 50 > auth()->user()->balance) {
+            return redirect()->route('licences')->with('danger', 'На вашем балансе недостаточно средств для создания лицензии');
+        }
 
         if ($licence == null) {
+            $user = User::find(auth()->id());
+            $user->balance -= $request->monthCount * 50;
+            $user->update();
+
             /**
              * создаем лицензию
              */

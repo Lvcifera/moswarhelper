@@ -134,22 +134,6 @@
                 </div>
             </div>
         </div>
-
-        <hr class="my-8">
-        <p class="lead">Как это работает? Описание работы каждого модуля ты найдешь по кнопке ниже. Также не забывай
-            делиться своими идеями по улучшению работы приложения по кнопке обратной связи</p>
-        <p class="lead">
-            <div class="row">
-                <div class="col-4">
-
-                </div>
-                <div class="col-4">
-                    <a class="btn btn-primary btn-lg" href="{{ route('manual') }}" role="button">Руководство пользователя</a>
-                </div>
-                <div class="col-4">
-                    <a class="btn btn-primary btn-lg" href="#" role="button">Обратная связь</a>
-                </div>
-            </div>
-        </p>
+        <br>
     </div>
 @endsection

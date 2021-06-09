@@ -18,7 +18,7 @@ class CreateLicencesTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('player');
             $table->timestamp('start');
-            $table->timestamp('end');
+            $table->timestamp('end')->nullable();
             $table->timestamps();
             $table->foreign('user_id')
                 ->references('id')

@@ -64,7 +64,7 @@ Route::get('gypsy', [ModuleController::class, 'gypsy'])->name('gypsy')->middlewa
 Route::get('petriks', [ModuleController::class, 'petriks'])->name('petriks')->middleware('auth');; // петрики
 Route::get('gifts', [ModuleController::class, 'gifts'])->name('gifts')->middleware('auth');; // подарки
 Route::get('botFunctions', [BotFunctionController::class, 'botFunctions'])->name('botFunctions')->middleware('auth');; // функции бота
-Route::get('news', [MainController::class, 'news'])->name('news')->middleware('auth'); // новости
+Route::get('news', [MainController::class, 'news'])->name('news'); // новости
 
 Auth::routes();
 

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Classes\SendRequest;
+use App\Models\Log;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;

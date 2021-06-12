@@ -44,11 +44,12 @@ class Kubovich extends Command
         /**
          * загрузим список всех заданий
          */
-        $kubovich = \App\Models\Kubovich::whereHas('character.licence', function ($query) {
-            $query->where('end', '>', Carbon::now());
-        })->whereHas('character.licence', function ($query) {
-            $query->whereColumn('today_count', '!=', 'count');
-        })->get();
+        $kubovich = \App\Models\Kubovich::with('character.licence')
+            ->whereHas('character.licence', function ($query) {
+                $query->where('end', '>', Carbon::now());
+            })->whereHas('character.licence', function ($query) {
+                $query->whereColumn('today_count', '!=', 'count');
+            })->get();
 
         /**
          * перед стартом заданий необходимо проверить,
@@ -90,7 +91,7 @@ class Kubovich extends Command
                  * указано в задании
                  */
                 $count = $item->today_count;
-                while ($count <= $item->count) {
+                while ($count < $item->count) {
                     $pushYellow = $document->find('button[id=push-ellow]');
                     if ($pushYellow[0]->attr['class'] == 'button') {
                          SendRequest::postRequest(

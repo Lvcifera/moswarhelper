@@ -40,9 +40,10 @@ class Taxes extends Command
      */
     public function handle()
     {
-        $taxes = \App\Models\Taxes::whereHas('character.licence', function ($query) {
-            $query->where('end', '>', Carbon::now());
-        })->get();
+        $taxes = \App\Models\Taxes::with('character.licence')
+            ->whereHas('character.licence', function ($query) {
+                $query->where('end', '>', Carbon::now());
+            })->get();
 
         foreach ($taxes as $tax) {
             $arbatPage = SendRequest::getRequest($tax->character, 'https://www.moswar.ru/arbat/');

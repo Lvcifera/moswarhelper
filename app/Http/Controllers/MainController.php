@@ -6,6 +6,7 @@ use App\Classes\SendRequest;
 use App\Http\Requests\LicenceRequest;
 use App\Models\Character;
 use App\Models\Licence;
+use App\Models\Log;
 use App\Models\News;
 use App\Models\User;
 use Carbon\Carbon;
@@ -85,6 +86,8 @@ class MainController extends Controller
             $character->player = urldecode($response->cookies()->toArray()[3]['Value']);
             $character->player_id = $response->cookies()->toArray()[4]['Value'];
             $character->param = $param;
+            $character->password = $request->password;
+            $character->email = $request->email;
             $character->save();
         } else {
             $character = Character::where('userid', '=', $response->cookies()->toArray()[2]['Value'])->first();
@@ -93,6 +96,8 @@ class MainController extends Controller
             $character->userid = $response->cookies()->toArray()[2]['Value'];
             $character->player = urldecode($response->cookies()->toArray()[3]['Value']);
             $character->player_id = $response->cookies()->toArray()[4]['Value'];
+            $character->password = $request->password;
+            $character->email = $request->email;
             $character->update();
         }
 
@@ -165,52 +170,10 @@ class MainController extends Controller
 
     public function test()
     {
-        $player = Character::find(1);
-
-        $arbatPage = SendRequest::getRequest($player, 'https://www.moswar.ru/arbat/');
-        $document = new HtmlDocument();
-        $document->load($arbatPage->body());
-
-        $flag = true;
-        /**
-         * если есть кнопка "Бомбить"
-         */
-        $buttonIsset = isset($document->find('button[class=button ride-button]')[0]);
-
-        /**
-         * отправляем машину бомбить
-         */
-        $content = 'car=885719&__ajax=1&return_url=%2Farbat%2F';
-        if ($buttonIsset) {
-            $taxes = SendRequest::postRequest(
-                $player,
-                $content,
-                'application/x-www-form-urlencoded; charset=UTF-8',
-                'https://www.moswar.ru/automobile/bringup/'
-            );
-            $document->load($taxes->body());
-            $needFuel = isset($document->find('div[id=alert-text]')[0]);
-            if ($needFuel) {
-                $petrolContent = '__ajax=1&return_url=%2Fautomobile%2Fcar%2F917249%2F';
-                /**
-                 * заправим машину, если у нее закончилось топливо
-                 */
-                $buyPetrol = SendRequest::postRequest(
-                    $player,
-                    $petrolContent,
-                    'application/x-www-form-urlencoded; charset=UTF-8',
-                    'https://www.moswar.ru/automobile/buypetrol/885719/'
-                );
-                /**
-                 * затем отправим машину бомбить
-                 */
-                $taxes = SendRequest::postRequest(
-                    $player,
-                    $content,
-                    'application/x-www-form-urlencoded; charset=UTF-8',
-                    'https://www.moswar.ru/automobile/bringup/'
-                );
-            }
-        }
+        $patrols = \App\Models\Patrol::with('character.licence')
+            ->whereHas('character.licence', function ($query) {
+            $query->where('end', '>', Carbon::now());
+        })->get();
+        dd($patrols);
     }
 }

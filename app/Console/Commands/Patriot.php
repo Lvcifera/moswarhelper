@@ -40,9 +40,10 @@ class Patriot extends Command
      */
     public function handle()
     {
-        $patriots = \App\Models\Patriot::whereHas('character.licence', function ($query) {
-            $query->where('end', '>', Carbon::now());
-        })->where('time_start', '<', Carbon::now()->format('H:i:s'))
+        $patriots = \App\Models\Patriot::with('character.licence')
+            ->whereHas('character.licence', function ($query) {
+                $query->where('end', '>', Carbon::now());
+            })->where('time_start', '<', Carbon::now()->format('H:i:s'))
             ->get();
         foreach ($patriots as $patriot) {
             $alleyPage = SendRequest::getRequest(

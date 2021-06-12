@@ -40,9 +40,10 @@ class Patrol extends Command
      */
     public function handle()
     {
-        $patrols = \App\Models\Patrol::whereHas('character.licence', function ($query) {
-            $query->where('end', '>', Carbon::now());
-        })->get();
+        $patrols = \App\Models\Patrol::with('character.licence')
+            ->whereHas('character.licence', function ($query) {
+                $query->where('end', '>', Carbon::now());
+            })->get();
 
         foreach ($patrols as $patrol) {
             $playerPage = SendRequest::getRequest($patrol->character, 'https://www.moswar.ru/alley/');

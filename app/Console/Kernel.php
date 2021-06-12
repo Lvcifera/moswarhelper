@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\Kubovich;
+use App\Console\Commands\Taxes;
 use App\Http\Controllers\BotFunctionController;
 use App\Models\Patrol;
 use Carbon\Carbon;
@@ -21,6 +22,7 @@ class Kernel extends ConsoleKernel
         Commands\Patrol::class,
         Commands\Shaurburgers::class,
         Commands\Kubovich::class,
+        Commands\Taxes::class,
     ];
 
     /**
@@ -31,10 +33,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('patrol:start')->everyFifteenMinutes();
-        $schedule->command('shaurburgers:start')->everyFifteenMinutes();
+        $schedule->command('patrol:start')->everyFiveMinutes();
+        $schedule->command('shaurburgers:start')->everyTenMinutes();
         $schedule->command('patriot:start')->everyThirtyMinutes();
-        $schedule->command('taxes:start')->mondays()->everyMinute();
+        $schedule->command('taxes:start')->mondays()->everyMinute()->timezone('Europe/Moscow');
         $schedule->command('kubovich:start')->hourly();
         $schedule->command('resetKubovichCount:start')->dailyAt('21:00');
     }

@@ -1,7 +1,7 @@
 @extends('layouts.layout')
 
 @section('title')
-    <title>MoswarHelper - лучший помощник!</title>
+    <title>MoswarHelper - лучший помощник для Мосвара!</title>
 @endsection
 
 @section('content')

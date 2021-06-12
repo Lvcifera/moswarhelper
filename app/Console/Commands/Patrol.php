@@ -46,29 +46,43 @@ class Patrol extends Command
             })->get();
 
         foreach ($patrols as $patrol) {
-            $playerPage = SendRequest::getRequest($patrol->character, 'https://www.moswar.ru/alley/');
+            $alleyPage = SendRequest::getRequest($patrol->character, 'https://www.moswar.ru/alley/');
             $document = new HtmlDocument();
-            $document->load($playerPage->body());
+            $document->load($alleyPage->body());
+            $first_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('first_region') . ']')[0]);
+            $second_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('second_region') . ']')[0]);
+            $third_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('third_region') . ']')[0]);
 
             /**
-             * если на сегодня израсходовано все
-             * время на патрулирование или персонаж
-             * сейчас патрулирует
+             * если на странице есть кнопка старта патрулирования
              */
-            $flag = true;
-            $timeleft = $document->find('p[class=timeleft]')[0]->plaintext;
-            $patrolProcess = $document->find("button[onclick=$('#patrolForm').trigger('submit');]");
-            if ($timeleft == 'На сегодня Вы уже истратили все время патрулирования.' || empty($patrolProcess)) {
-                $flag = false;
-            }
-            if ($flag) {
-                $content = 'action=patrol&region=' . $patrol->getRawOriginal('region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
-                $patrol_start = SendRequest::postRequest(
-                    $patrol->character,
-                    $content,
-                    'application/x-www-form-urlencoded; charset=UTF-8',
-                    'https://www.moswar.ru/alley/'
-                );
+            $button = isset($document->find("button[onclick=$('#patrolForm').trigger('submit');]")[0]);
+            if ($button) {
+                if ($first_region) {
+                    $content = 'action=patrol&region=' . $patrol->getRawOriginal('first_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
+                    $patrol_start = SendRequest::postRequest(
+                        $patrol->character,
+                        $content,
+                        'application/x-www-form-urlencoded; charset=UTF-8',
+                        'https://www.moswar.ru/alley/'
+                    );
+                } elseif (!$first_region && $second_region) {
+                    $content = 'action=patrol&region=' . $patrol->getRawOriginal('second_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
+                    $patrol_start = SendRequest::postRequest(
+                        $patrol->character,
+                        $content,
+                        'application/x-www-form-urlencoded; charset=UTF-8',
+                        'https://www.moswar.ru/alley/'
+                    );
+                } elseif (!$first_region && !$second_region && $third_region) {
+                    $content = 'action=patrol&region=' . $patrol->getRawOriginal('third_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
+                    $patrol_start = SendRequest::postRequest(
+                        $patrol->character,
+                        $content,
+                        'application/x-www-form-urlencoded; charset=UTF-8',
+                        'https://www.moswar.ru/alley/'
+                    );
+                }
                 $patrol->last_start = Carbon::now();
                 $patrol->save();
             }

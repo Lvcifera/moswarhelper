@@ -70,8 +70,10 @@ class MainController extends Controller
          * (понадобится для покупки
          * зубного ящика в березке)
          */
-        $string = explode("params:['", $playerPage->body());
-        $param = mb_strcut($string[1], 0, 40);
+        $document = new HtmlDocument();
+        $document->load($playerPage->body());
+        $param = $document->find('div[id=box_teeth] span[class=f]');
+        $param = mb_strcut($param[0]->attr['onclick'], 45, 40);
 
         $character = Character::where('userid', '=', $response->cookies()->toArray()[2]['Value'])
             ->where('user_id', '=', auth()->id())
@@ -96,6 +98,7 @@ class MainController extends Controller
             $character->userid = $response->cookies()->toArray()[2]['Value'];
             $character->player = urldecode($response->cookies()->toArray()[3]['Value']);
             $character->player_id = $response->cookies()->toArray()[4]['Value'];
+            $character->param = $param;
             $character->password = $request->password;
             $character->email = $request->email;
             $character->update();
@@ -172,8 +175,51 @@ class MainController extends Controller
     {
         $patrols = \App\Models\Patrol::with('character.licence')
             ->whereHas('character.licence', function ($query) {
-            $query->where('end', '>', Carbon::now());
-        })->get();
-        dd($patrols);
+                $query->where('end', '>', Carbon::now());
+            })->get();
+
+        foreach ($patrols as $patrol) {
+            $alleyPage = SendRequest::getRequest($patrol->character, 'https://www.moswar.ru/alley/');
+            $document = new HtmlDocument();
+            $document->load($alleyPage->body());
+            $first_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('first_region') . ']')[0]);
+            $second_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('second_region') . ']')[0]);
+            $third_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('third_region') . ']')[0]);
+            /**
+             * если на сегодня израсходовано все
+             * время на патрулирование или персонаж
+             * сейчас патрулирует
+             */
+            $button = isset($document->find("button[onclick=$('#patrolForm').trigger('submit');]")[0]);
+            if ($button) {
+                if ($first_region) {
+                    $content = 'action=patrol&region=' . $patrol->getRawOriginal('first_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
+                    $patrol_start = SendRequest::postRequest(
+                        $patrol->character,
+                        $content,
+                        'application/x-www-form-urlencoded; charset=UTF-8',
+                        'https://www.moswar.ru/alley/'
+                    );
+                } elseif (!$first_region && $second_region) {
+                    $content = 'action=patrol&region=' . $patrol->getRawOriginal('second_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
+                    $patrol_start = SendRequest::postRequest(
+                        $patrol->character,
+                        $content,
+                        'application/x-www-form-urlencoded; charset=UTF-8',
+                        'https://www.moswar.ru/alley/'
+                    );
+                } elseif (!$first_region && !$second_region && $third_region) {
+                    $content = 'action=patrol&region=' . $patrol->getRawOriginal('third_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
+                    $patrol_start = SendRequest::postRequest(
+                        $patrol->character,
+                        $content,
+                        'application/x-www-form-urlencoded; charset=UTF-8',
+                        'https://www.moswar.ru/alley/'
+                    );
+                }
+                $patrol->last_start = Carbon::now();
+                $patrol->save();
+            }
+        }
     }
 }

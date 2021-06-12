@@ -54,7 +54,9 @@ class BotFunctionController extends Controller
             $task = new Patrol();
             $task->user_id = auth()->id();
             $task->character_id = $request->player;
-            $task->region = $request->region;
+            $task->first_region = $request->first_region;
+            $task->second_region = $request->second_region;
+            $task->third_region = $request->third_region;
             $task->time = $request->time;
             $task->save();
 
@@ -65,7 +67,9 @@ class BotFunctionController extends Controller
                 ->first();
             $task->user_id = auth()->id();
             $task->character_id = $request->player;
-            $task->region = $request->region;
+            $task->first_region = $request->first_region;
+            $task->second_region = $request->second_region;
+            $task->third_region = $request->third_region;
             $task->time = $request->time;
             $task->update();
 

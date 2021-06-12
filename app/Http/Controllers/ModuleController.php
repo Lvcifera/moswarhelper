@@ -38,12 +38,12 @@ class ModuleController extends Controller
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $playerPage = SendRequest::getRequest(
+            $campPage = SendRequest::getRequest(
                 $playerData,
                 'https://www.moswar.ru/camp/'
             );
             $document = new HtmlDocument();
-            $document->load($playerPage->body());
+            $document->load($campPage->body());
             $title = $document->find('title');
 
             if ($title[0]->_[5] == 'Стенка на стенку') {
@@ -120,9 +120,9 @@ class ModuleController extends Controller
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $campPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
             $document = new HtmlDocument();
-            $document->load($playerPage->body());
+            $document->load($campPage->body());
             $title = $document->find('title');
 
             if ($title[0]->_[5] == 'Стенка на стенку') {
@@ -188,9 +188,9 @@ class ModuleController extends Controller
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $campPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
             $document = new HtmlDocument();
-            $document->load($playerPage->body());
+            $document->load($campPage->body());
             $title = $document->find('title');
 
             if ($title[0]->_[5] == 'Стенка на стенку') {
@@ -248,9 +248,9 @@ class ModuleController extends Controller
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $campPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
             $document = new HtmlDocument();
-            $document->load($playerPage->body());
+            $document->load($campPage->body());
             $title = $document->find('title');
 
             if ($title[0]->_[5] == 'Стенка на стенку') {

@@ -53,7 +53,7 @@
                                     <div class="form-group row">
                                         <label for="name" class="col-md-4 col-form-label text-md-right">Район для патрулирования</label>
                                         <div class="col-md-6">
-                                            <select class="form-select" id="exampleSelect1" name="region">
+                                            <select class="form-select" id="exampleSelect1" name="first_region">
                                                 <option value="1">Кремлевский</option>
                                                 <option value="2">Звериный</option>
                                                 <option value="3">Вокзальный</option>
@@ -70,6 +70,63 @@
                                                 <option value="16">Водоохранный</option>
                                                 <option value="17">Лосинск</option>
                                                 <option value="18">Внучатово</option>
+                                                <option value="20">Забугорный</option>
+                                                <option value="21">Отдохнуть в Тыве</option>
+                                                <option value="22">Ночной дозор</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <label for="name" class="col-md-4 col-form-label text-md-right">Если недоступен, то</label>
+                                        <div class="col-md-6">
+                                            <select class="form-select" id="exampleSelect1" name="second_region">
+                                                <option value="1">Кремлевский</option>
+                                                <option value="2">Звериный</option>
+                                                <option value="3">Вокзальный</option>
+                                                <option value="4">Винно-заводский</option>
+                                                <option value="5">Монеточный</option>
+                                                <option value="6">Небоскреб-сити</option>
+                                                <option value="7">Промышленный</option>
+                                                <option value="8">Телевизионный</option>
+                                                <option value="10">Парковый</option>
+                                                <option value="11">Спальный</option>
+                                                <option value="12">Дворцовый</option>
+                                                <option value="13">Газовый</option>
+                                                <option value="15">Причальный</option>
+                                                <option value="16">Водоохранный</option>
+                                                <option value="17">Лосинск</option>
+                                                <option value="18">Внучатово</option>
+                                                <option value="20">Забугорный</option>
+                                                <option value="21">Отдохнуть в Тыве</option>
+                                                <option value="22">Ночной дозор</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <label for="name" class="col-md-4 col-form-label text-md-right">Если снова недоступен, то</label>
+                                        <div class="col-md-6">
+                                            <select class="form-select" id="exampleSelect1" name="third_region">
+                                                <option value="1">Кремлевский</option>
+                                                <option value="2">Звериный</option>
+                                                <option value="3">Вокзальный</option>
+                                                <option value="4">Винно-заводский</option>
+                                                <option value="5">Монеточный</option>
+                                                <option value="6">Небоскреб-сити</option>
+                                                <option value="7">Промышленный</option>
+                                                <option value="8">Телевизионный</option>
+                                                <option value="10">Парковый</option>
+                                                <option value="11">Спальный</option>
+                                                <option value="12">Дворцовый</option>
+                                                <option value="13">Газовый</option>
+                                                <option value="15">Причальный</option>
+                                                <option value="16">Водоохранный</option>
+                                                <option value="17">Лосинск</option>
+                                                <option value="18">Внучатово</option>
+                                                <option value="20">Забугорный</option>
+                                                <option value="21">Отдохнуть в Тыве</option>
+                                                <option value="22">Ночной дозор</option>
                                             </select>
                                         </div>
                                     </div>
@@ -89,7 +146,7 @@
                                     </div>
                                     <br>
                                     <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
-                                    <p class="text-info">Периодичность запуска модуля - каждые 15 минут.</p>
+                                    <p class="text-info">Периодичность запуска модуля - каждые 5 минут.</p>
                                     <div class="form-group row mb-0">
                                         <div class="col-md-6 offset-md-4">
                                             <button type="submit" class="btn btn-primary">Добавить задачу</button>
@@ -117,7 +174,9 @@
                                         @endif
                                             <th scope="row">{{ $key + 1 }}</th>
                                             <td>{{ $patrol->character->player }}</td>
-                                            <td>{{ $patrol->region }}</td>
+                                            <td>
+                                                {{ $patrol->first_region }}->{{ $patrol->second_region }}->{{ $patrol->third_region }}
+                                            </td>
                                             <td>{{ $patrol->time }} минут</td>
                                             <td>
                                                 @if ($patrol->last_start != null)

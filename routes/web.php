@@ -48,6 +48,8 @@ Route::post('botFunctions/casino/create', [BotFunctionController::class, 'casino
 Route::get('botFunctions/casino/{id}', [BotFunctionController::class, 'casinoDelete'])->name('casino.delete'); // удаление задачи кубовича
 Route::post('botFunctions/patriot/create', [BotFunctionController::class, 'patriotCreate'])->name('patriot.create'); // создание задачи просмотра ТВ
 Route::get('botFunctions/patriot/{id}', [BotFunctionController::class, 'patriotDelete'])->name('patriot.delete'); // удаление задачи просмотра ТВ
+Route::post('botFunctions/potion/create', [BotFunctionController::class, 'potionCreate'])->name('potion.create'); // создание задачи покупки микстур
+Route::get('botFunctions/potion/{id}', [BotFunctionController::class, 'potionDelete'])->name('potion.delete'); // удаление задачи покупки микстур
 
 /**
  * страницы приложения

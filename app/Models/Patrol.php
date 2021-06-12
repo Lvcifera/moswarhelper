@@ -21,17 +21,6 @@ class Patrol extends Model
         return $this->hasOne(Character::class, 'id', 'character_id');
     }
 
-    public function charLicence()
-    {
-        return $this->hasOneThrough(
-            Licence::class,
-            Character::class,
-            'licence_id',
-            'id',
-            'id',
-            'id');
-    }
-
     public function getFirstRegionAttribute($key)
     {
         $regions = [

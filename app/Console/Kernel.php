@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
         Commands\Shaurburgers::class,
         Commands\Kubovich::class,
         Commands\Taxes::class,
+        Commands\Potion::class,
     ];
 
     /**
@@ -34,6 +35,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('patrol:start')->everyFiveMinutes();
+        $schedule->command('potion:start')->everyThreeMinutes();
         $schedule->command('shaurburgers:start')->everyTenMinutes();
         $schedule->command('patriot:start')->everyThirtyMinutes();
         $schedule->command('taxes:start')->mondays()->everyMinute()->timezone('Europe/Moscow');

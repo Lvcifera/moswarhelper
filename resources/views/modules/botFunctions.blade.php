@@ -30,6 +30,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#casino">Казино</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#potion">Микстуры</a>
+                            </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane fade active show" id="patrol">
@@ -499,6 +502,76 @@
                                                 </td>
                                                 <td>
                                                     <a href="{{ route('casino.delete', ['id' => $item->id]) }}" class="text-danger">Удалить</a>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="potion">
+                                <form method="POST" action="{{ route('potion.create') }}">
+                                    @csrf
+                                    <div class="form-group row">
+                                        <label for="name" class="col-md-4 col-form-label text-md-right">На каком персонаже</label>
+                                        <div class="col-md-6">
+                                            <select class="form-select" id="exampleSelect1" name="player">
+                                                @if (!$characters->isEmpty())
+                                                    @foreach ($characters as $character)
+                                                        <option value="{{ $character->id }}">{{ $character->player }}</option>
+                                                    @endforeach
+                                                @else
+                                                    <option>Нет персонажей</option>
+                                                @endif
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row">
+                                        <label for="name" class="col-md-4 col-form-label text-md-right">Сколько монет оставлять</label>
+                                        <div class="col-md-6">
+                                            <input type="number" class="form-control" id="moneyLeft" aria-describedby="teethHelp" name="moneyLeft" placeholder="1000">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <p class="text-muted">По одной задаче на каждого персонажа. Повторы обновляют задачу этого персонажа.</p>
+                                    <p class="text-info">Бот будет покупать микстуры, оставляя указанное количество монет.</p>
+                                    <p class="text-info">Периодичность запуска модуля - каждые 3 минуты.</p>
+                                    <div class="form-group row mb-0">
+                                        <div class="col-md-6 offset-md-4">
+                                            <button type="submit" class="btn btn-primary">Добавить задачу</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <br>
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">Номер</th>
+                                        <th scope="col">Персонаж</th>
+                                        <th scope="col">Сколько монет оставлять</th>
+                                        <th scope="col">Последний запуск</th>
+                                        <th scope="col">Действие</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach ($potions as $key => $item)
+                                        @if ($item->character->licence->end < \Carbon\Carbon::now())
+                                            <tr class="table-danger">
+                                        @else
+                                            <tr class="table">
+                                                @endif
+                                                <th scope="row">{{ $key + 1 }}</th>
+                                                <td>{{ $item->character->player }}</td>
+                                                <td>{{ $item->money_left }}</td>
+                                                <td>
+                                                    @if ($item->last_start != null)
+                                                        {{ $item->last_start }}
+                                                    @else
+                                                        Сегодня не было запуска
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <a href="{{ route('potion.delete', ['id' => $item->id]) }}" class="text-danger">Удалить</a>
                                                 </td>
                                             </tr>
                                             @endforeach

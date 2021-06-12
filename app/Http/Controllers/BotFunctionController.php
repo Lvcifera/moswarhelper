@@ -6,6 +6,7 @@ use App\Classes\Request;
 use App\Http\Requests\CasinoRequest;
 use App\Http\Requests\PatriotRequest;
 use App\Http\Requests\PatrolRequest;
+use App\Http\Requests\PotionRequest;
 use App\Http\Requests\ShaurburgersRequest;
 use App\Http\Requests\TaxesRequest;
 use App\Models\Kubovich;
@@ -13,6 +14,7 @@ use App\Models\Character;
 use App\Models\Licence;
 use App\Models\Patriot;
 use App\Models\Patrol;
+use App\Models\Potion;
 use App\Models\Shaurburgers;
 use App\Models\Taxes;
 use Carbon\Carbon;
@@ -41,7 +43,10 @@ class BotFunctionController extends Controller
         $patriots = Patriot::with('character')
             ->where('user_id', '=', auth()->id())
             ->get();
-        return view('modules.botFunctions', compact('characters', 'patrols', 'shaurburgers', 'taxes', 'casino', 'patriots'));
+        $potions = Potion::with('character')
+            ->where('user_id', '=', auth()->id())
+            ->get();
+        return view('modules.botFunctions', compact('characters', 'patrols', 'shaurburgers', 'taxes', 'casino', 'patriots', 'potions'));
     }
 
     public function patrolCreate(PatrolRequest $request)
@@ -280,6 +285,41 @@ class BotFunctionController extends Controller
         $casino = Patriot::find($id);
         $casino->delete();
 
-        return redirect()->route('botFunctions')->with('success', 'Задача бомбления успешно удалена');
+        return redirect()->route('botFunctions')->with('success', 'Задача просмотра ТВ успешно удалена');
+    }
+
+    public function potionCreate(PotionRequest $request)
+    {
+        $task = Potion::where('user_id', '=', auth()->id())
+            ->where('character_id', '=', $request->player)
+            ->first();
+
+        if ($task == null) {
+            $task = new Potion();
+            $task->user_id = auth()->id();
+            $task->character_id = $request->player;
+            $task->money_left = $request->moneyLeft;
+            $task->save();
+
+            return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
+        } else {
+            $task = Potion::where('user_id', '=', auth()->id())
+                ->where('character_id', '=', $request->player)
+                ->first();
+            $task->user_id = auth()->id();
+            $task->character_id = $request->player;
+            $task->money_left = $request->moneyLeft;
+            $task->update();
+
+            return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
+        }
+    }
+
+    public function potionDelete($id)
+    {
+        $casino = Potion::find($id);
+        $casino->delete();
+
+        return redirect()->route('botFunctions')->with('success', 'Задача покупки микстур успешно удалена');
     }
 }

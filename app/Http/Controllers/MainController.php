@@ -6,11 +6,10 @@ use App\Classes\Request;
 use App\Http\Requests\LicenceRequest;
 use App\Models\Character;
 use App\Models\Licence;
-use App\Models\Log;
 use App\Models\News;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Faker\Provider\HtmlLorem;
 use Illuminate\Support\Facades\Http;
 use simplehtmldom\HtmlDocument;
 
@@ -153,8 +152,6 @@ class MainController extends Controller
         } else {
             return redirect()->route('licences')->with('danger', 'Лицензия на этого персонажа уже существует');
         }
-
-
     }
 
     public function manual()
@@ -173,53 +170,6 @@ class MainController extends Controller
 
     public function test()
     {
-        $patrols = \App\Models\Patrol::with('character.licence')
-            ->whereHas('character.licence', function ($query) {
-                $query->where('end', '>', Carbon::now());
-            })->get();
 
-        foreach ($patrols as $patrol) {
-            $alleyPage = Request::getRequest($patrol->character, 'https://www.moswar.ru/alley/');
-            $document = new HtmlDocument();
-            $document->load($alleyPage->body());
-            $first_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('first_region') . ']')[0]);
-            $second_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('second_region') . ']')[0]);
-            $third_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('third_region') . ']')[0]);
-            /**
-             * если на сегодня израсходовано все
-             * время на патрулирование или персонаж
-             * сейчас патрулирует
-             */
-            $button = isset($document->find("button[onclick=$('#patrolForm').trigger('submit');]")[0]);
-            if ($button) {
-                if ($first_region) {
-                    $content = 'action=patrol&region=' . $patrol->getRawOriginal('first_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
-                    $patrol_start = Request::postRequest(
-                        $patrol->character,
-                        $content,
-                        'application/x-www-form-urlencoded; charset=UTF-8',
-                        'https://www.moswar.ru/alley/'
-                    );
-                } elseif (!$first_region && $second_region) {
-                    $content = 'action=patrol&region=' . $patrol->getRawOriginal('second_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
-                    $patrol_start = Request::postRequest(
-                        $patrol->character,
-                        $content,
-                        'application/x-www-form-urlencoded; charset=UTF-8',
-                        'https://www.moswar.ru/alley/'
-                    );
-                } elseif (!$first_region && !$second_region && $third_region) {
-                    $content = 'action=patrol&region=' . $patrol->getRawOriginal('third_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
-                    $patrol_start = Request::postRequest(
-                        $patrol->character,
-                        $content,
-                        'application/x-www-form-urlencoded; charset=UTF-8',
-                        'https://www.moswar.ru/alley/'
-                    );
-                }
-                $patrol->last_start = Carbon::now();
-                $patrol->save();
-            }
-        }
     }
 }

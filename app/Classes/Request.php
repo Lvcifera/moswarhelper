@@ -4,7 +4,7 @@ namespace App\Classes;
 
 use Illuminate\Support\Facades\Http;
 
-class SendRequest {
+class Request {
     public static function getRequest($playerData, $url)
     {
         return Http::withHeaders(

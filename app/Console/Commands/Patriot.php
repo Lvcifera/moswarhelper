@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Classes\SendRequest;
+use App\Classes\Request;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use simplehtmldom\HtmlDocument;
@@ -46,7 +46,7 @@ class Patriot extends Command
             })->where('time_start', '<', Carbon::now()->format('H:i:s'))
             ->get();
         foreach ($patriots as $patriot) {
-            $alleyPage = SendRequest::getRequest(
+            $alleyPage = Request::getRequest(
                 $patriot->character,
                 'https://www.moswar.ru/alley/'
             );
@@ -68,7 +68,7 @@ class Patriot extends Command
 
             if ($flag) {
                 $content = 'action=patriottv&time=' . $patriot->getRawOriginal('time') .' &__ajax=1&return_url=%2Falley%2F';
-                $watch = SendRequest::postRequest(
+                $watch = Request::postRequest(
                     $patriot->character,
                     $content,
                     'application/x-www-form-urlencoded; charset=UTF-8',

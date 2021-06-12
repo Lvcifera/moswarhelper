@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Classes\SendRequest;
+use App\Classes\Request;
 use App\Models\Character;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -56,7 +56,7 @@ class Kubovich extends Command
          * доступен ли сейчас кубович
          */
         $playerData = Character::find(3);
-        $casinoPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/casino/kubovich/');
+        $casinoPage = Request::getRequest($playerData, 'https://www.moswar.ru/casino/kubovich/');
         $document = new HtmlDocument();
         $document->load($casinoPage->body());
         $flag = true;
@@ -79,7 +79,7 @@ class Kubovich extends Command
                  * перед стартом кубовича для каждого персонажа с активной
                  * лицензией произведем обмен 20 руды на 200 фишек
                  */
-                $getChips = SendRequest::postRequest(
+                $getChips = Request::postRequest(
                     $item->character,
                     $changeOre,
                     'application/x-www-form-urlencoded; charset=UTF-8',
@@ -94,31 +94,31 @@ class Kubovich extends Command
                 while ($count < $item->count) {
                     $pushYellow = $document->find('button[id=push-ellow]');
                     if ($pushYellow[0]->attr['class'] == 'button') {
-                         SendRequest::postRequest(
+                         Request::postRequest(
                              $item->character,
                              $loadYellow,
                              'application/x-www-form-urlencoded; charset=UTF-8',
                              'https://www.moswar.ru/casino/kubovich/'
                          );
-                         SendRequest::postRequest(
+                         Request::postRequest(
                            $item->character,
                            $playYellow,
                            'application/x-www-form-urlencoded; charset=UTF-8',
                            'https://www.moswar.ru/casino/kubovich/'
                          );
-                        SendRequest::getRequest(
+                        Request::getRequest(
                             $item->character,
                             'https://www.moswar.ru/casino/kubovich/'
                         );
                     }
 
-                    $response = SendRequest::postRequest(
+                    $response = Request::postRequest(
                         $item->character,
                         $playKubovich,
                         'application/x-www-form-urlencoded; charset=UTF-8',
                         'https://www.moswar.ru/casino/kubovich/'
                     );
-                    $reloadPage = SendRequest::getRequest(
+                    $reloadPage = Request::getRequest(
                         $item->character,
                         'https://www.moswar.ru/casino/kubovich/'
                     );

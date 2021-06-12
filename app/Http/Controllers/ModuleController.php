@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\SendRequest;
+use App\Classes\Request;
 use App\Http\Requests\GiftsRequest;
 use App\Http\Requests\GypsyRequest;
 use App\Http\Requests\MoscowpolyRequest;
@@ -38,7 +38,7 @@ class ModuleController extends Controller
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $campPage = SendRequest::getRequest(
+            $campPage = Request::getRequest(
                 $playerData,
                 'https://www.moswar.ru/camp/'
             );
@@ -55,7 +55,7 @@ class ModuleController extends Controller
                 /**
                  * покупаем зубной ящик
                  */
-                $buy = SendRequest::postRequest(
+                $buy = Request::postRequest(
                     $playerData,
                     $content,
                     'application/x-www-form-urlencoded; charset=UTF-8',
@@ -71,14 +71,14 @@ class ModuleController extends Controller
                      * используя его уникальный ID,
                      * предварительно обновив страницу
                      */
-                    $reloadPage = SendRequest::getRequest(
+                    $reloadPage = Request::getRequest(
                         $playerData,
                         'https://www.moswar.ru/player/'
                     );
                     $document = new HtmlDocument();
                     $document->load($reloadPage->body());
                     $getBoxID = $document->find('div[id=inventory-box_teeth-btn]');
-                    $openBox = SendRequest::getRequest(
+                    $openBox = Request::getRequest(
                         $playerData,
                         'https://www.moswar.ru/player/json/use/' . end($getBoxID)->attr['data-id'] . '/'
                     );
@@ -120,7 +120,7 @@ class ModuleController extends Controller
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $campPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $campPage = Request::getRequest($playerData, 'https://www.moswar.ru/camp/');
             $document = new HtmlDocument();
             $document->load($campPage->body());
             $title = $document->find('title');
@@ -134,7 +134,7 @@ class ModuleController extends Controller
                 /**
                  * бросаем кубик
                  */
-                $roll = SendRequest::postRequest(
+                $roll = Request::postRequest(
                     $playerData,
                     $contentRoll,
                     'application/x-www-form-urlencoded; charset=UTF-8',
@@ -152,7 +152,7 @@ class ModuleController extends Controller
                 /**
                  * забираем приз
                  */
-                $get_prize = SendRequest::postRequest(
+                $get_prize = Request::postRequest(
                     $playerData,
                     $contentGetPrize,
                     'application/x-www-form-urlencoded; charset=UTF-8',
@@ -188,7 +188,7 @@ class ModuleController extends Controller
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $campPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $campPage = Request::getRequest($playerData, 'https://www.moswar.ru/camp/');
             $document = new HtmlDocument();
             $document->load($campPage->body());
             $title = $document->find('title');
@@ -202,7 +202,7 @@ class ModuleController extends Controller
                 /**
                  * начинаем игру
                  */
-                $start_game = SendRequest::postRequest(
+                $start_game = Request::postRequest(
                     $playerData,
                     $contentStartGame,
                     'application/x-www-form-urlencoded; charset=UTF-8',
@@ -212,7 +212,7 @@ class ModuleController extends Controller
                 /**
                  * ставим автоматическую игру
                  */
-                $auto_game = SendRequest::postRequest(
+                $auto_game = Request::postRequest(
                     $playerData,
                     $contentAutoGame,
                     'application/x-www-form-urlencoded; charset=UTF-8',
@@ -248,7 +248,7 @@ class ModuleController extends Controller
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $campPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $campPage = Request::getRequest($playerData, 'https://www.moswar.ru/camp/');
             $document = new HtmlDocument();
             $document->load($campPage->body());
             $title = $document->find('title');
@@ -259,7 +259,7 @@ class ModuleController extends Controller
                 return redirect()->route('gypsy')->with('danger', 'Действие выполнено частично, персонаж находится в стенке.
                 Сыграно ' . $count . ' раз. Затраченное время ' . $time . ' секунд');
             } else {
-                $doPetriks = SendRequest::postRequest(
+                $doPetriks = Request::postRequest(
                     $playerData,
                     $content,
                     'application/x-www-form-urlencoded; charset=UTF-8',
@@ -292,7 +292,7 @@ class ModuleController extends Controller
          * проверяем, существует ли персонаж с
          * указанным именем
          */
-        $checkPlayerExist = SendRequest::getRequest(
+        $checkPlayerExist = Request::getRequest(
             $playerData,
             'https://www.moswar.ru/shop/playerexists/' . $request->reciever . '/'
         );
@@ -315,7 +315,7 @@ class ModuleController extends Controller
             /**
              * дарим подарок
              */
-            $gift = SendRequest::postRequest(
+            $gift = Request::postRequest(
                 $playerData,
                 $content,
                 'application/x-www-form-urlencoded; charset=UTF-8',

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\SendRequest;
+use App\Classes\Request;
 use App\Http\Requests\LicenceRequest;
 use App\Models\Character;
 use App\Models\Licence;
@@ -179,7 +179,7 @@ class MainController extends Controller
             })->get();
 
         foreach ($patrols as $patrol) {
-            $alleyPage = SendRequest::getRequest($patrol->character, 'https://www.moswar.ru/alley/');
+            $alleyPage = Request::getRequest($patrol->character, 'https://www.moswar.ru/alley/');
             $document = new HtmlDocument();
             $document->load($alleyPage->body());
             $first_region = isset($document->find('div[class=regions-choose] li[data-metro-id='. $patrol->getRawOriginal('first_region') . ']')[0]);
@@ -194,7 +194,7 @@ class MainController extends Controller
             if ($button) {
                 if ($first_region) {
                     $content = 'action=patrol&region=' . $patrol->getRawOriginal('first_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
-                    $patrol_start = SendRequest::postRequest(
+                    $patrol_start = Request::postRequest(
                         $patrol->character,
                         $content,
                         'application/x-www-form-urlencoded; charset=UTF-8',
@@ -202,7 +202,7 @@ class MainController extends Controller
                     );
                 } elseif (!$first_region && $second_region) {
                     $content = 'action=patrol&region=' . $patrol->getRawOriginal('second_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
-                    $patrol_start = SendRequest::postRequest(
+                    $patrol_start = Request::postRequest(
                         $patrol->character,
                         $content,
                         'application/x-www-form-urlencoded; charset=UTF-8',
@@ -210,7 +210,7 @@ class MainController extends Controller
                     );
                 } elseif (!$first_region && !$second_region && $third_region) {
                     $content = 'action=patrol&region=' . $patrol->getRawOriginal('third_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
-                    $patrol_start = SendRequest::postRequest(
+                    $patrol_start = Request::postRequest(
                         $patrol->character,
                         $content,
                         'application/x-www-form-urlencoded; charset=UTF-8',

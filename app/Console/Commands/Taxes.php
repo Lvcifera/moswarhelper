@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Classes\SendRequest;
+use App\Classes\Request;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use simplehtmldom\HtmlDocument;
@@ -46,7 +46,7 @@ class Taxes extends Command
             })->get();
 
         foreach ($taxes as $tax) {
-            $arbatPage = SendRequest::getRequest($tax->character, 'https://www.moswar.ru/arbat/');
+            $arbatPage = Request::getRequest($tax->character, 'https://www.moswar.ru/arbat/');
             $document = new HtmlDocument();
             $document->load($arbatPage->body());
 
@@ -60,7 +60,7 @@ class Taxes extends Command
              */
             $content = 'car=' . $tax->carID . '&__ajax=1&return_url=%2Farbat%2F';
             if ($buttonIsset) {
-                $taxes = SendRequest::postRequest(
+                $taxes = Request::postRequest(
                     $tax->character,
                     $content,
                     'application/x-www-form-urlencoded; charset=UTF-8',
@@ -73,7 +73,7 @@ class Taxes extends Command
                     /**
                      * заправим машину, если у нее закончилось топливо
                      */
-                    $buyPetrol = SendRequest::postRequest(
+                    $buyPetrol = Request::postRequest(
                         $tax->character,
                         $petrolContent,
                         'application/x-www-form-urlencoded; charset=UTF-8',
@@ -82,7 +82,7 @@ class Taxes extends Command
                     /**
                      * затем отправим машину бомбить
                      */
-                    $taxes = SendRequest::postRequest(
+                    $taxes = Request::postRequest(
                         $tax->character,
                         $content,
                         'application/x-www-form-urlencoded; charset=UTF-8',

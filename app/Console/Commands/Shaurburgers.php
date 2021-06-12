@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Classes\SendRequest;
+use App\Classes\Request;
 use App\Models\Log;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -47,7 +47,7 @@ class Shaurburgers extends Command
         })->get();
 
         foreach ($shaurburgers as $shaurburger) {
-            $playerPage = SendRequest::getRequest($shaurburger->character, 'https://www.moswar.ru/shaurburgers/');
+            $playerPage = Request::getRequest($shaurburger->character, 'https://www.moswar.ru/shaurburgers/');
             $document = new HtmlDocument();
             $document->load($playerPage->body());
 
@@ -64,7 +64,7 @@ class Shaurburgers extends Command
             }
             if ($flag) {
                 $content = 'action=work&time=' . $shaurburger->getRawOriginal('time') . '&__ajax=1&return_url=/shaurburgers/';
-                $shaurburgers_start = SendRequest::postRequest(
+                $shaurburgers_start = Request::postRequest(
                     $shaurburger->character,
                     $content,
                     'application/x-www-form-urlencoded; charset=UTF-8',

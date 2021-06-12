@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\SendRequest;
+use App\Classes\Request;
 use App\Http\Requests\CasinoRequest;
 use App\Http\Requests\PatriotRequest;
 use App\Http\Requests\PatrolRequest;
@@ -137,7 +137,7 @@ class BotFunctionController extends Controller
         /**
          * зайдем на страницу хаты и получим массив всех машин игрока
          */
-        $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/home/');
+        $playerPage = Request::getRequest($playerData, 'https://www.moswar.ru/home/');
         $document = new HtmlDocument();
         $document->load($playerPage->body());
         $carsInfo = $document->find('div[id=home-garage] div[class=object-thumb] div[class=padding] a');
@@ -240,7 +240,7 @@ class BotFunctionController extends Controller
         /**
          * зайдем на страницу закоулков и узнаем, есть ли на странице форма просмотра ТВ
          */
-        $playerPage = SendRequest::getRequest($playerData, 'https://www.moswar.ru/alley/');
+        $playerPage = Request::getRequest($playerData, 'https://www.moswar.ru/alley/');
         $document = new HtmlDocument();
         $document->load($playerPage->body());
         $issetPatriot = $document->find('form[id=patriottvForm]');

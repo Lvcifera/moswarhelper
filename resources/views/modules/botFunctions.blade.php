@@ -549,7 +549,7 @@
                                         <th scope="col">Номер</th>
                                         <th scope="col">Персонаж</th>
                                         <th scope="col">Сколько монет оставлять</th>
-                                        <th scope="col">Последний запуск</th>
+                                        <th scope="col">Последняя покупка</th>
                                         <th scope="col">Действие</th>
                                     </tr>
                                     </thead>

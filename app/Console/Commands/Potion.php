@@ -50,7 +50,12 @@ class Potion extends Command
             $document = new HtmlDocument();
             $document->load($response->body());
             $money = $document->find('ul[class=wallet wallet-4] li[class=tugriki-block]');
+            $currentMoney = (integer) mb_strcut($money[0]->attr['title'], 12);
             $potionCount = (integer) floor(((integer) mb_strcut($money[0]->attr['title'], 12) - $potion->money_left) / 100);
+
+            if ($currentMoney < $potion->money_left) {
+                continue;
+            }
 
             $content = 'key=' . $potion->character->param . '&action=buy&item=51&amount=' . $potionCount . '&return_url=%2Fshop%2Fsection%2Fpharmacy%2F&type=&ajax_ext=2&autochange_honey=0';
             $buyPotion = Request::postRequest(

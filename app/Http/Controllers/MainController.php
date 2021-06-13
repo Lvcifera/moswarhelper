@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Classes\Request;
+use App\Http\Requests\CharacterRequest;
 use App\Http\Requests\LicenceRequest;
 use App\Models\Character;
 use App\Models\Licence;
-use App\Models\News;
 use App\Models\User;
 use Carbon\Carbon;
-use Faker\Provider\HtmlLorem;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use simplehtmldom\HtmlDocument;
 
@@ -23,87 +24,78 @@ class MainController extends Controller
         return view('characters', compact('characters'));
     }
 
-    public function characterAdd(Request $request)
+    public function characterAdd(CharacterRequest $request)
     {
         /**
-         * запрос на авторизацию персонажа
+         * авторизация персонажа
          */
-        $response = Http::asForm()->post('https://www.moswar.ru', [
-            'action' => $request->action,
-            'email' => $request->email,
-            'password' => $request->password,
-            'remember' => $request->remember
-        ]);
-        if ($response->cookies()->toArray()[2]['Value'] == 'deleted') {
+        $content = 'action=login&email=' . $request->get('email') . '&password=' . $request->get('password') . '&remember=on';
+        $contentType = 'application/x-www-form-urlencoded';
+        $response = Http::withBody($content, $contentType)
+            ->withHeaders(
+                [
+                    'User-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36',
+                ])->post('https://www.moswar.ru/');
+        if ($response->cookies()->count() == 3) {
             return redirect()->route('characters')->with('danger', 'Некорректные данные для авторизации');
         }
+        $cookies = $response->cookies()->toArray();
 
         /**
-         * запрос на получение страницы магазина
-         * после авторизации
+         * проверка на существование у пользователя
+         * лицензии на данного персонажа
          */
-        $playerPage = Http::withCookies(
-            [
-                'PHPSESSID' => $response->cookies()->toArray()[0]['Value'],
-                'authkey' => $response->cookies()->toArray()[1]['Value'],
-                'userid' => $response->cookies()->toArray()[2]['Value'],
-                'player' => $response->cookies()->toArray()[3]['Value'],
-                'player_id' => $response->cookies()->toArray()[4]['Value'],
-            ], 'moswar.ru')->get('https://www.moswar.ru/berezka/section/mixed/');
-
-
-        /**
-         * проверяем, есть ли у текущего пользователя
-         * лицензия на авторизованного персонажа
-         */
-        $userLicence = Licence::with('user')
-            ->where('user_id', '=', auth()->id())
-            ->where('player', '=', urldecode($response->cookies()->toArray()[3]['Value']))
-            ->first();
-        if ($userLicence == null) {
+        try {
+            $licence = Licence::with('user')
+                ->where('user_id', '=', auth()->id())
+                ->where('player', '=', $cookies[3]['Value'])
+                ->firstOrFail();
+        } catch (ModelNotFoundException $exception) {
             return redirect()->route('characters')->with('danger', 'У вас нет лицензии на этого персонажа');
         }
 
         /**
-         * вырезаем param из страницы
-         * (понадобится для покупки
-         * зубного ящика в березке)
+         * открываем страницу магазина и
+         * вырезаем параметр для покупки
          */
+        $shopPage = Http::withHeaders(
+            [
+                'User-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36'
+            ])->withCookies(
+            [
+                'PHPSESSID' => $cookies[0]['Value'],
+                'authkey' => $cookies[1]['Value'],
+                'userid' => $cookies[2]['Value'],
+                'player' => $cookies[3]['Value'],
+                'player_id' => $cookies[4]['Value'],
+            ], 'moswar.ru')->get('https://www.moswar.ru/berezka/section/mixed/');
         $document = new HtmlDocument();
-        $document->load($playerPage->body());
+        $document->load($shopPage->body());
         $param = $document->find('div[id=box_teeth] span[class=f]');
         $param = mb_strcut($param[0]->attr['onclick'], 45, 40);
 
-        $character = Character::where('userid', '=', $response->cookies()->toArray()[2]['Value'])
-            ->where('user_id', '=', auth()->id())
-            ->first();
-        if ($character == null) {
-            $character = new Character();
-            $character->user_id = auth()->user()->id;
-            $character->licence_id = $userLicence->id;
-            $character->PHPSESSID = $response->cookies()->toArray()[0]['Value'];
-            $character->authkey = $response->cookies()->toArray()[1]['Value'];
-            $character->userid = $response->cookies()->toArray()[2]['Value'];
-            $character->player = urldecode($response->cookies()->toArray()[3]['Value']);
-            $character->player_id = $response->cookies()->toArray()[4]['Value'];
-            $character->param = $param;
-            $character->password = $request->password;
-            $character->email = $request->email;
-            $character->save();
+        $character = Character::updateOrCreate(
+            [
+                'player' => $cookies[3]['Value'],
+            ],
+            [
+                'user_id' => auth()->id(),
+                'licence_id' => $licence->id,
+                'PHPSESSID' => $cookies[0]['Value'],
+                'authkey' => $cookies[1]['Value'],
+                'userid' => $cookies[2]['Value'],
+                'player' => $cookies[3]['Value'],
+                'player_id' => $cookies[4]['Value'],
+                'param' => $param,
+                'email' => $request->get('email'),
+                'password' => $request->get('password'),
+            ]
+        );
+        if ($character->wasRecentlyCreated) {
+            return redirect()->route('characters')->with('success', 'Персонаж успешно авторизован');
         } else {
-            $character = Character::where('userid', '=', $response->cookies()->toArray()[2]['Value'])->first();
-            $character->PHPSESSID = $response->cookies()->toArray()[0]['Value'];
-            $character->authkey = $response->cookies()->toArray()[1]['Value'];
-            $character->userid = $response->cookies()->toArray()[2]['Value'];
-            $character->player = urldecode($response->cookies()->toArray()[3]['Value']);
-            $character->player_id = $response->cookies()->toArray()[4]['Value'];
-            $character->param = $param;
-            $character->password = $request->password;
-            $character->email = $request->email;
-            $character->update();
+            return redirect()->route('characters')->with('success', 'Данные персонажа успешно обновлены');
         }
-
-        return redirect()->back()->with('success', 'Успешная авторизация');
     }
 
     public function characterDelete($id)
@@ -122,32 +114,23 @@ class MainController extends Controller
 
     public function licenceAdd(LicenceRequest $request)
     {
-        /**
-         * проверяем, создана ли уже лицензия
-         * на выбранного персонажа
-         */
-        $licence = Licence::where('user_id', '=', auth()->id())
-            ->where('player', '=', $request->player)
-            ->first();
         if ($request->monthCount * 50 > auth()->user()->balance) {
             return redirect()->route('licences')->with('danger', 'На вашем балансе недостаточно средств для создания лицензии');
         }
-
-        if ($licence == null) {
+        $licence = Licence::firstOrCreate(
+            [
+                'player' => $request->get('player'),
+            ],
+            [
+                'user_id' => auth()->id(),
+                'player' => $request->get('player'),
+                'end' => Carbon::now()->addMonths($request->get('monthCount'))
+            ]
+        );
+        if ($licence->wasRecentlyCreated) {
             $user = User::find(auth()->id());
-            $user->balance -= $request->monthCount * 50;
+            $user->balance -= $request->get('monthCount') * 50;
             $user->update();
-
-            /**
-             * создаем лицензию
-             */
-            $licence = new Licence();
-            $licence->user_id = auth()->user()->id;
-            $licence->player = $request->player;
-            $licence->start = Carbon::now();
-            $licence->end = Carbon::now()->addMonths($request->monthCount);
-            $licence->save();
-
             return redirect()->route('licences')->with('success', 'Лицензия успешно добавлена');
         } else {
             return redirect()->route('licences')->with('danger', 'Лицензия на этого персонажа уже существует');
@@ -159,13 +142,9 @@ class MainController extends Controller
         return view('manual');
     }
 
-    public function news() {
-        return view('news');
-    }
-
-    public function feedbackForm()
+    public function news()
     {
-        return view('feedback');
+        return view('news');
     }
 
     public function test()

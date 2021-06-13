@@ -10,6 +10,7 @@ class Potion extends Model
     use HasFactory;
 
     protected $table = 'potions';
+    protected $fillable = ['user_id', 'character_id', 'money_left'];
 
     public function user()
     {

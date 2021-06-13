@@ -10,6 +10,7 @@ class Patriot extends Model
     use HasFactory;
 
     protected $table = 'patriot';
+    protected $fillable = ['user_id', 'character_id', 'time', 'time_start'];
 
     public function user()
     {

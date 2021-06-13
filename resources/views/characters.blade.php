@@ -13,7 +13,6 @@
                     <div class="card-body">
                         <form method="POST" action="{{ route('character.add') }}">
                             @csrf
-                            <input hidden type="text" class="form-control" id="action" value="login" name="action">
                             <div class="form-group">
                                 <label for="exampleInputEmail">Почта</label>
                                 <input type="email" class="form-control" id="exampleInputEmail" aria-describedby="emailHelp" name="email"  placeholder="test@mail.ru">
@@ -24,8 +23,7 @@
                                 <input type="password" class="form-control" id="exampleInputPassword" name="password" placeholder="qwerty">
                             </div>
                             <br>
-                            <input hidden type="text" class="form-control" id="remember" value="on" name="remember">
-                            <button type="submit" class="btn btn-primary">Авторизоваться</button>
+                            <button type="submit" class="btn btn-primary">Авторизовать персонажа</button>
                         </form>
                     </div>
                 </div>

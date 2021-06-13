@@ -10,6 +10,7 @@ class Licence extends Model
     use HasFactory;
 
     protected $table = 'licences';
+    protected $fillable = ['user_id', 'player', 'end'];
 
     public function characters()
     {

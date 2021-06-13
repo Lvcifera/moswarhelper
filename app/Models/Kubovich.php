@@ -10,6 +10,7 @@ class Kubovich extends Model
     use HasFactory;
 
     protected $table = 'kubovich';
+    protected $fillable = ['user_id', 'character_id', 'count'];
 
     public function user()
     {

@@ -34,13 +34,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('patrol:start')->everyFiveMinutes();
+        /*$schedule->command('patrol:start')->everyFiveMinutes();
         $schedule->command('potion:start')->everyThreeMinutes();
         $schedule->command('shaurburgers:start')->everyTenMinutes();
         $schedule->command('patriot:start')->everyThirtyMinutes();
         $schedule->command('taxes:start')->mondays()->everyMinute()->timezone('Europe/Moscow');
         $schedule->command('kubovich:start')->hourly();
-        $schedule->command('resetKubovichCount:start')->dailyAt('21:00');
+        $schedule->command('resetKubovichCount:start')->dailyAt('21:00');*/
     }
 
     /**

@@ -51,36 +51,24 @@ class BotFunctionController extends Controller
 
     public function patrolCreate(PatrolRequest $request)
     {
-        $task = Patrol::where('user_id', '=', auth()->id())
-            ->where('character_id', '=', $request->player)
-            ->first();
-
-        if ($task == null) {
-            $task = new Patrol();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->first_region = $request->first_region;
-            $task->second_region = $request->second_region;
-            $task->third_region = $request->third_region;
-            $task->time = $request->time;
-            $task->save();
-
+        $task = Patrol::updateOrCreate(
+            [
+                'character_id' => $request->get('player'),
+            ],
+            [
+                'user_id' => auth()->id(),
+                'character_id' => $request->get('player'),
+                'time' => $request->get('time'),
+                'first_region' => $request->get('first_region'),
+                'second_region' => $request->get('second_region'),
+                'third_region' => $request->get('third_region'),
+            ]
+        );
+        if ($task->wasRecentlyCreated) {
             return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
         } else {
-            $task = Patrol::where('user_id', '=', auth()->id())
-                ->where('character_id', '=', $request->player)
-                ->first();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->first_region = $request->first_region;
-            $task->second_region = $request->second_region;
-            $task->third_region = $request->third_region;
-            $task->time = $request->time;
-            $task->update();
-
             return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
         }
-
     }
 
     public function patrolDelete($id)
@@ -93,27 +81,19 @@ class BotFunctionController extends Controller
 
     public function shaurburgersCreate(ShaurburgersRequest $request)
     {
-        $task = Shaurburgers::where('user_id', '=', auth()->id())
-            ->where('character_id', '=', $request->player)
-            ->first();
-
-        if ($task == null) {
-            $task = new Shaurburgers();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->time = $request->time;
-            $task->save();
-
+        $task = Shaurburgers::updateOrCreate(
+            [
+                'character_id' => $request->get('player'),
+            ],
+            [
+                'user_id' => auth()->id(),
+                'character_id' => $request->get('player'),
+                'time' => $request->get('time'),
+            ]
+        );
+        if ($task->wasRecentlyCreated) {
             return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
         } else {
-            $task = Shaurburgers::where('user_id', '=', auth()->id())
-                ->where('character_id', '=', $request->player)
-                ->first();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->time = $request->time;
-            $task->update();
-
             return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
         }
     }
@@ -128,23 +108,19 @@ class BotFunctionController extends Controller
 
     public function taxesCreate(TaxesRequest $request)
     {
-        $task = Taxes::where('user_id', '=', auth()->id())
-            ->where('character_id', '=', $request->player)
-            ->first();
-
         /**
          * получаем данные персонажа для запроса
          */
-        $playerData = Character::where('user_id', '=', auth()->id())
-            ->where('id', '=', $request->player)
+        $characterData = Character::where('user_id', '=', auth()->id())
+            ->where('id', '=', $request->get('player'))
             ->first();
 
         /**
          * зайдем на страницу хаты и получим массив всех машин игрока
          */
-        $playerPage = Request::getRequest($playerData, 'https://www.moswar.ru/home/');
+        $homePage = Request::getRequest($characterData, 'https://www.moswar.ru/home/');
         $document = new HtmlDocument();
-        $document->load($playerPage->body());
+        $document->load($homePage->body());
         $carsInfo = $document->find('div[id=home-garage] div[class=object-thumb] div[class=padding] a');
 
         /**
@@ -153,34 +129,30 @@ class BotFunctionController extends Controller
          */
         if (empty($carsInfo)) {
             return redirect()->route('botFunctions')->with('danger', 'У вас нет ни одной машины');
-        } elseif (!isset($carsInfo[$request->carNumber - 1])) {
+        } elseif (!isset($carsInfo[$request->get('carNumber') - 1])) {
             return redirect()->route('botFunctions')->with('danger', 'У вас нет машины с таким номером');
         }
 
         /**
          * получим айди указанной машины
          */
-        $carID = mb_strcut($carsInfo[$request->carNumber - 1]->href, 16, 6);
+        $carID = mb_strcut($carsInfo[$request->get('carNumber') - 1]->href, 16, 6);
 
-        if ($task == null) {
-            $task = new Taxes();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->carID = $carID;
-            $task->car_number = $request->carNumber;
-            $task->save();
 
+        $task = Taxes::updateOrCreate(
+            [
+                'character_id' => $request->get('player'),
+            ],
+            [
+                'user_id' => auth()->id(),
+                'character_id' => $request->get('player'),
+                'carID' => $carID,
+                'car_number' => $request->get('carNumber'),
+            ]
+        );
+        if ($task->wasRecentlyCreated) {
             return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
         } else {
-            $task = Taxes::where('user_id', '=', auth()->id())
-                ->where('character_id', '=', $request->player)
-                ->first();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->carID = $carID;
-            $task->car_number = $request->carNumber;
-            $task->update();
-
             return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
         }
     }
@@ -195,28 +167,19 @@ class BotFunctionController extends Controller
 
     public function casinoCreate(CasinoRequest $request)
     {
-        $task = Kubovich::where('user_id', '=', auth()->id())
-            ->where('character_id', '=', $request->player)
-            ->first();
-
-        if ($task == null) {
-            $task = new Kubovich();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->count = $request->count;
-            $task->today_count = 0;
-            $task->save();
-
+        $task = Kubovich::updateOrCreate(
+            [
+                'character_id' => $request->get('player'),
+            ],
+            [
+                'user_id' => auth()->id(),
+                'character_id' => $request->get('player'),
+                'count' => $request->get('count')
+            ]
+        );
+        if ($task->wasRecentlyCreated) {
             return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
         } else {
-            $task = Kubovich::where('user_id', '=', auth()->id())
-                ->where('character_id', '=', $request->player)
-                ->first();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->count = $request->count;
-            $task->update();
-
             return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
         }
     }
@@ -231,23 +194,19 @@ class BotFunctionController extends Controller
 
     public function patriotCreate(PatriotRequest $request)
     {
-        $task = Patriot::where('user_id', '=', auth()->id())
-            ->where('character_id', '=', $request->player)
-            ->first();
-
         /**
          * получаем данные персонажа для запроса
          */
-        $playerData = Character::where('user_id', '=', auth()->id())
-            ->where('id', '=', $request->player)
+        $characterData = Character::where('user_id', '=', auth()->id())
+            ->where('id', '=', $request->get('player'))
             ->first();
 
         /**
          * зайдем на страницу закоулков и узнаем, есть ли на странице форма просмотра ТВ
          */
-        $playerPage = Request::getRequest($playerData, 'https://www.moswar.ru/alley/');
+        $alleyPage = Request::getRequest($characterData, 'https://www.moswar.ru/alley/');
         $document = new HtmlDocument();
-        $document->load($playerPage->body());
+        $document->load($alleyPage->body());
         $issetPatriot = $document->find('form[id=patriottvForm]');
 
         /**
@@ -257,25 +216,20 @@ class BotFunctionController extends Controller
             return redirect()->route('botFunctions')->with('danger', 'У вас нет Патриот ТВ');
         }
 
-        if ($task == null) {
-            $task = new Patriot();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->time = $request->time;
-            $task->time_start = $request->time_start;
-            $task->save();
-
+        $task = Patriot::updateOrCreate(
+            [
+                'character_id' => $request->get('player'),
+            ],
+            [
+                'user_id' => auth()->id(),
+                'character_id' => $request->get('player'),
+                'time' => $request->get('time'),
+                'time_start' => $request->get('time_start'),
+            ]
+        );
+        if ($task->wasRecentlyCreated) {
             return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
         } else {
-            $task = Patriot::where('user_id', '=', auth()->id())
-                ->where('character_id', '=', $request->player)
-                ->first();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->time = $request->time;
-            $task->time_start = $request->time_start;
-            $task->update();
-
             return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
         }
     }
@@ -290,27 +244,19 @@ class BotFunctionController extends Controller
 
     public function potionCreate(PotionRequest $request)
     {
-        $task = Potion::where('user_id', '=', auth()->id())
-            ->where('character_id', '=', $request->player)
-            ->first();
-
-        if ($task == null) {
-            $task = new Potion();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->money_left = $request->moneyLeft;
-            $task->save();
-
+        $task = Potion::updateOrCreate(
+            [
+                'character_id' => $request->get('player'),
+            ],
+            [
+                'user_id' => auth()->id(),
+                'character_id' => $request->get('player'),
+                'money_left' => $request->get('moneyLeft'),
+            ]
+        );
+        if ($task->wasRecentlyCreated) {
             return redirect()->route('botFunctions')->with('success', 'Задание успешно добавлено');
         } else {
-            $task = Potion::where('user_id', '=', auth()->id())
-                ->where('character_id', '=', $request->player)
-                ->first();
-            $task->user_id = auth()->id();
-            $task->character_id = $request->player;
-            $task->money_left = $request->moneyLeft;
-            $task->update();
-
             return redirect()->route('botFunctions')->with('success', 'Задание успешно обновлено');
         }
     }

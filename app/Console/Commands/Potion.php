@@ -55,6 +55,8 @@ class Potion extends Command
 
             if ($currentMoney < $potion->money_left) {
                 continue;
+            } elseif ($currentMoney < 100) {
+                continue;
             }
 
             $content = 'key=' . $potion->character->param . '&action=buy&item=51&amount=' . $potionCount . '&return_url=%2Fshop%2Fsection%2Fpharmacy%2F&type=&ajax_ext=2&autochange_honey=0';

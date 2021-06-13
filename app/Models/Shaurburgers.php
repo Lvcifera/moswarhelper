@@ -10,6 +10,7 @@ class Shaurburgers extends Model
     use HasFactory;
 
     protected $table = 'shaurburgers';
+    protected $fillable = ['user_id', 'character_id', 'time'];
 
     public function user()
     {

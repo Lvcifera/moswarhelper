@@ -10,6 +10,7 @@ class Patrol extends Model
     use HasFactory;
 
     protected $table = 'patrols';
+    protected $fillable = ['user_id', 'character_id', 'time', 'first_region', 'second_region', 'third_region'];
 
     public function user()
     {

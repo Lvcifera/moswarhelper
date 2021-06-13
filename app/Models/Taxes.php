@@ -10,6 +10,7 @@ class Taxes extends Model
     use HasFactory;
 
     protected $table = 'taxes';
+    protected $fillable = ['user_id', 'character_id', 'carID', 'car_number'];
 
     public function user()
     {

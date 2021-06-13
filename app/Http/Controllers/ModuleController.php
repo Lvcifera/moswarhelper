@@ -26,20 +26,20 @@ class ModuleController extends Controller
 
     public function teethWork(TeethRequest $request)
     {
-        $playerData = Character::where('player', '=', $request->player)->first();
+        $character = Character::where('player', '=', $request->get('player'))->first();
 
         $start_time = new Carbon();
         $count = 0;
-        $content = 'key=' . $playerData->param . '&' .
+        $content = 'key=' . $character->param . '&' .
             'action=buy&' . 'item=6603&amount=&return_url=%2Fberezka%2Fsection%2Fmixed%2F&' .
             'type=&ajax_ext=2&autochange_honey=0';
-        while ($count < $request->teethCount) {
+        while ($count < $request->get('teethCount')) {
             /**
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
             $campPage = Request::getRequest(
-                $playerData,
+                $character,
                 'https://www.moswar.ru/camp/'
             );
             $document = new HtmlDocument();
@@ -56,7 +56,7 @@ class ModuleController extends Controller
                  * покупаем зубной ящик
                  */
                 $buy = Request::postRequest(
-                    $playerData,
+                    $character,
                     $content,
                     'application/x-www-form-urlencoded; charset=UTF-8',
                     'https://www.moswar.ru/shop/json/'
@@ -72,14 +72,14 @@ class ModuleController extends Controller
                      * предварительно обновив страницу
                      */
                     $reloadPage = Request::getRequest(
-                        $playerData,
+                        $character,
                         'https://www.moswar.ru/player/'
                     );
                     $document = new HtmlDocument();
                     $document->load($reloadPage->body());
                     $getBoxID = $document->find('div[id=inventory-box_teeth-btn]');
                     $openBox = Request::getRequest(
-                        $playerData,
+                        $character,
                         'https://www.moswar.ru/player/json/use/' . end($getBoxID)->attr['data-id'] . '/'
                     );
                 } elseif ($buy->json('result') == 0) {
@@ -109,18 +109,18 @@ class ModuleController extends Controller
 
     public function moscowpolyWork(MoscowpolyRequest $request)
     {
-        $playerData = Character::where('player', '=', $request->player)->first();
+        $character = Character::where('player', '=', $request->get('player'))->first();
 
         $start_time = new Carbon();
         $count = 0;
         $contentRoll = 'action=moscowpoly_roll&ajax=1&__referrer=%2Fhome%2F&return_url=%2Fhome%2F';
         $contentGetPrize = 'action=moscowpoly_activate&ajax=1&__referrer=%2Fhome%2F&return_url=%2Fhome%2F';
-        while ($count < $request->cubesCount) {
+        while ($count < $request->get('cubesCount')) {
             /**
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $campPage = Request::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $campPage = Request::getRequest($character, 'https://www.moswar.ru/camp/');
             $document = new HtmlDocument();
             $document->load($campPage->body());
             $title = $document->find('title');
@@ -135,7 +135,7 @@ class ModuleController extends Controller
                  * бросаем кубик
                  */
                 $roll = Request::postRequest(
-                    $playerData,
+                    $character,
                     $contentRoll,
                     'application/x-www-form-urlencoded; charset=UTF-8',
                     'https://www.moswar.ru/home/moscowpoly_roll/'
@@ -153,7 +153,7 @@ class ModuleController extends Controller
                  * забираем приз
                  */
                 $get_prize = Request::postRequest(
-                    $playerData,
+                    $character,
                     $contentGetPrize,
                     'application/x-www-form-urlencoded; charset=UTF-8',
                     'https://www.moswar.ru/home/moscowpoly_activate/'
@@ -177,18 +177,18 @@ class ModuleController extends Controller
 
     public function gypsyWork(GypsyRequest $request)
     {
-        $playerData = Character::where('player', '=', $request->player)->first();
+        $character = Character::where('player', '=', $request->get('player'))->first();
 
         $start_time = new Carbon();
         $count = 0;
         $contentStartGame = 'action=gypsyStart&gametype=1';
         $contentAutoGame = 'action=gypsyAuto';
-        while ($count < $request->gypsyCount) {
+        while ($count < $request->get('gypsyCount')) {
             /**
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $campPage = Request::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $campPage = Request::getRequest($character, 'https://www.moswar.ru/camp/');
             $document = new HtmlDocument();
             $document->load($campPage->body());
             $title = $document->find('title');
@@ -203,7 +203,7 @@ class ModuleController extends Controller
                  * начинаем игру
                  */
                 $start_game = Request::postRequest(
-                    $playerData,
+                    $character,
                     $contentStartGame,
                     'application/x-www-form-urlencoded; charset=UTF-8',
                     'https://www.moswar.ru/camp/gypsy/'
@@ -213,7 +213,7 @@ class ModuleController extends Controller
                  * ставим автоматическую игру
                  */
                 $auto_game = Request::postRequest(
-                    $playerData,
+                    $character,
                     $contentAutoGame,
                     'application/x-www-form-urlencoded; charset=UTF-8',
                     'https://www.moswar.ru/camp/gypsy/'
@@ -238,17 +238,17 @@ class ModuleController extends Controller
 
     public function petriksWork(PetriksRequest $request)
     {
-        $playerData = Character::where('player', '=', $request->player)->first();
+        $character = Character::where('player', '=', $request->get('player'))->first();
 
         $start_time = new Carbon();
         $count = 0;
-        $content = 'player=' . $playerData->player_id . '&__ajax=1&return_url=/factory/';
-        while ($count < $request->nanoCount) {
+        $content = 'player=' . $character->player_id . '&__ajax=1&return_url=/factory/';
+        while ($count < $request->get('nanoCount')) {
             /**
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
              */
-            $campPage = Request::getRequest($playerData, 'https://www.moswar.ru/camp/');
+            $campPage = Request::getRequest($character, 'https://www.moswar.ru/camp/');
             $document = new HtmlDocument();
             $document->load($campPage->body());
             $title = $document->find('title');
@@ -260,7 +260,7 @@ class ModuleController extends Controller
                 Сыграно ' . $count . ' раз. Затраченное время ' . $time . ' секунд');
             } else {
                 $doPetriks = Request::postRequest(
-                    $playerData,
+                    $character,
                     $content,
                     'application/x-www-form-urlencoded; charset=UTF-8',
                     'https://www.moswar.ru/factory/start-petriks/'
@@ -285,7 +285,7 @@ class ModuleController extends Controller
 
     public function giftsWork(GiftsRequest $request)
     {
-        $playerData = Character::where('player', '=', $request->player)->first();
+        $character = Character::where('player', '=', $request->get('player'))->first();
 
         $start_time = new Carbon();
         /**
@@ -293,8 +293,8 @@ class ModuleController extends Controller
          * указанным именем
          */
         $checkPlayerExist = Request::getRequest(
-            $playerData,
-            'https://www.moswar.ru/shop/playerexists/' . $request->reciever . '/'
+            $character,
+            'https://www.moswar.ru/shop/playerexists/' . $request->get('reciever') . '/'
         );
         if ($checkPlayerExist->json() == 0) {
             return redirect()->route('gifts')->with('danger', 'Игрока с таким именем не существует');
@@ -302,21 +302,21 @@ class ModuleController extends Controller
 
         $count = 0;
         $content = 'action=buy&return_url=%2Fshop%2Fsection%2Fgifts%2F%23negative&item=' .
-            $request->gift . '&playerid=&key=' . $playerData->param . '&player=' .
-            $request->reciever . '&comment=' . $request->comment . '&';
-        if ($request->private != null) {
+            $request->get('gift') . '&playerid=&key=' . $character->param . '&player=' .
+            $request->get('reciever') . '&comment=' . $request->get('comment') . '&';
+        if ($request->get('private') != null) {
             $content .= 'private=on&';
         }
-        if ($request->anonimous != null) {
+        if ($request->get('anonimous') != null) {
             $content .= 'anonimous=on&__ajax=1';
         }
         $content .= '&__ajax=1';
-        while ($count < $request->giftCount) {
+        while ($count < $request->get('giftCount')) {
             /**
              * дарим подарок
              */
             $gift = Request::postRequest(
-                $playerData,
+                $character,
                 $content,
                 'application/x-www-form-urlencoded; charset=UTF-8',
                 'https://www.moswar.ru/shop/'

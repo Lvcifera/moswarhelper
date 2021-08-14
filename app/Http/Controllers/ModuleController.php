@@ -8,7 +8,6 @@ use App\Http\Requests\GypsyRequest;
 use App\Http\Requests\MoscowpolyRequest;
 use App\Http\Requests\PetriksRequest;
 use App\Http\Requests\TeethRequest;
-use App\Models\Licence;
 use App\Models\Character;
 use Carbon\Carbon;
 use simplehtmldom\HtmlDocument;
@@ -28,12 +27,6 @@ class ModuleController extends Controller
     {
         $character = Character::where('player', '=', $request->get('player'))->first();
 
-        $start_time = new Carbon();
-        $count = 0;
-        $content = 'key=' . $character->param . '&' .
-            'action=buy&' . 'item=6603&amount=&return_url=%2Fberezka%2Fsection%2Fmixed%2F&' .
-            'type=&ajax_ext=2&autochange_honey=0';
-        while ($count < $request->get('teethCount')) {
             /**
              * проверяем, не находится ли персонаж
              * в стенке в данный момент времени
@@ -47,14 +40,14 @@ class ModuleController extends Controller
             $title = $document->find('title');
 
             if ($title[0]->_[5] == 'Стенка на стенку') {
-                $end_time = new Carbon();
-                $time = $end_time->diffInSeconds($start_time);
-                return redirect()->route('teeth')->with('danger', 'Действие выполнено частично, персонаж находится в стенке,
-                 Куплено ' . $count . ' зубных ящиков. Затраченное время ' . gmdate('H:i:s', $time) . ' секунд');
+                return response()->json(['fight' => true]);
             } else {
                 /**
                  * покупаем зубной ящик
                  */
+                $content = 'key=' . $character->param . '&' .
+                    'action=buy&' . 'item=6603&amount=&return_url=%2Fberezka%2Fsection%2Fmixed%2F&' .
+                    'type=&ajax_ext=2&autochange_honey=0';
                 $buy = Request::postRequest(
                     $character,
                     $content,
@@ -78,24 +71,18 @@ class ModuleController extends Controller
                     $document = new HtmlDocument();
                     $document->load($reloadPage->body());
                     $getBoxID = $document->find('div[id=inventory-box_teeth-btn]');
-                    $openBox = Request::getRequest(
-                        $character,
-                        'https://www.moswar.ru/player/json/use/' . end($getBoxID)->attr['data-id'] . '/'
-                    );
+                    foreach ($getBoxID as $item) {
+                        $openBox = Request::getRequest(
+                            $character,
+                            'https://www.moswar.ru/player/json/use/' . $item->attr['data-id'] . '/'
+                        );
+                    }
                 } elseif ($buy->json('result') == 0) {
-                    $end_time = new Carbon();
-                    $time = $end_time->diffInSeconds($start_time);
-                    return redirect()->route('teeth')->with('success', 'Действие выполнено частично, закончились зубы,
-                 куплено ' . $count . ' зубных ящиков. Затраченное время ' . gmdate('H:i:s', $time) . ' секунд');
-                    break;
+                    return response()->json(['teethLost' => true]);
                 }
-                $count++;
             }
-        }
-        $end_time = new Carbon();
-        $time = $end_time->diffInSeconds($start_time);
 
-        return redirect()->route('teeth')->with('success', 'Действие успешно выполнено, затраченное время ' . gmdate('H:i:s', $time));
+        return response()->json(['success' => true]);
     }
 
     public function moscowpoly()

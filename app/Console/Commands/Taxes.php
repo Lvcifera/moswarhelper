@@ -68,7 +68,8 @@ class Taxes extends Command
                 );
                 $document->load($taxes->body());
                 $needFuel = isset($document->find('div[id=alert-text]')[0]);
-                if ($needFuel) {
+                $needFuel1 = isset($document->find('div[class=alert infoalert alert-error alert1]')[0]);
+                if ($needFuel || $needFuel1) {
                     $petrolContent = '__ajax=1&return_url=%2Fautomobile%2Fcar%2F' . $tax->carID . '%2F';
                     /**
                      * заправим машину, если у нее закончилось топливо

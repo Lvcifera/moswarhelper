@@ -11,7 +11,6 @@ use App\Http\Requests\ShaurburgersRequest;
 use App\Http\Requests\TaxesRequest;
 use App\Models\Kubovich;
 use App\Models\Character;
-use App\Models\Licence;
 use App\Models\Patriot;
 use App\Models\Patrol;
 use App\Models\Potion;
@@ -73,7 +72,8 @@ class BotFunctionController extends Controller
 
     public function patrolDelete($id)
     {
-        $patrol = Patrol::find($id);
+        $patrol = Patrol::with('character')
+            ->find($id);
         $patrol->delete();
 
         return redirect()->route('botFunctions')->with('success', 'Задача патруля успешно удалена');
@@ -100,7 +100,8 @@ class BotFunctionController extends Controller
 
     public function shaurburgersDelete($id)
     {
-        $shaurburgers = Shaurburgers::find($id);
+        $shaurburgers = Shaurburgers::with('character')
+            ->find($id);
         $shaurburgers->delete();
 
         return redirect()->route('botFunctions')->with('success', 'Задача шаурбургерса успешно удалена');
@@ -236,8 +237,9 @@ class BotFunctionController extends Controller
 
     public function patriotDelete($id)
     {
-        $casino = Patriot::find($id);
-        $casino->delete();
+        $patriot = Patriot::with('character')
+            ->find($id);
+        $patriot->delete();
 
         return redirect()->route('botFunctions')->with('success', 'Задача просмотра ТВ успешно удалена');
     }
@@ -263,8 +265,9 @@ class BotFunctionController extends Controller
 
     public function potionDelete($id)
     {
-        $casino = Potion::find($id);
-        $casino->delete();
+        $potion = Potion::with('character')
+            ->find($id);
+        $potion->delete();
 
         return redirect()->route('botFunctions')->with('success', 'Задача покупки микстур успешно удалена');
     }

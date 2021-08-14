@@ -55,7 +55,7 @@ class Kubovich extends Command
          * перед стартом заданий необходимо проверить,
          * доступен ли сейчас кубович
          */
-        $playerData = Character::find(3);
+        $playerData = Character::first();
         $casinoPage = Request::getRequest($playerData, 'https://www.moswar.ru/casino/kubovich/');
         $document = new HtmlDocument();
         $document->load($casinoPage->body());
@@ -94,13 +94,13 @@ class Kubovich extends Command
                 while ($count < $item->count) {
                     $pushYellow = $document->find('button[id=push-ellow]');
                     if ($pushYellow[0]->attr['class'] == 'button') {
-                         Request::postRequest(
+                        Request::postRequest(
                              $item->character,
                              $loadYellow,
                              'application/x-www-form-urlencoded; charset=UTF-8',
                              'https://www.moswar.ru/casino/kubovich/'
-                         );
-                         Request::postRequest(
+                        );
+                        Request::postRequest(
                            $item->character,
                            $playYellow,
                            'application/x-www-form-urlencoded; charset=UTF-8',

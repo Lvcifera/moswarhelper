@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('test', [MainController::class, 'test'])->name('test')->middleware('auth'); // тестирование
 
 /**
  * общие действия
@@ -60,12 +59,12 @@ Route::get('/', function () {
 Route::get('characters', [MainController::class, 'characters'])->name('characters')->middleware('auth'); // форма авторизации персонажа
 Route::get('manual', [MainController::class, 'manual'])->name('manual'); // руководство пользователя
 Route::get('licences', [MainController::class, 'licences'])->name('licences')->middleware('auth'); // лицензии
-Route::get('teeth', [ModuleController::class, 'teeth'])->name('teeth')->middleware('auth');; // зубные ящики
+Route::get('teeth', [ModuleController::class, 'teeth'])->name('teeth')->middleware('auth'); // зубные ящики
 Route::get('moscowpoly', [ModuleController::class, 'moscowpoly'])->name('moscowpoly')->middleware('auth');; // москвополия
-Route::get('gypsy', [ModuleController::class, 'gypsy'])->name('gypsy')->middleware('auth');; // гадалка
+Route::get('gypsy', [ModuleController::class, 'gypsy'])->name('gypsy')->middleware('auth'); // гадалка
 Route::get('petriks', [ModuleController::class, 'petriks'])->name('petriks')->middleware('auth');; // петрики
-Route::get('gifts', [ModuleController::class, 'gifts'])->name('gifts')->middleware('auth');; // подарки
-Route::get('botFunctions', [BotFunctionController::class, 'botFunctions'])->name('botFunctions')->middleware('auth');; // функции бота
+Route::get('gifts', [ModuleController::class, 'gifts'])->name('gifts')->middleware('auth'); // подарки
+Route::get('botFunctions', [BotFunctionController::class, 'botFunctions'])->name('botFunctions')->middleware('auth'); // функции бота
 Route::get('news', [MainController::class, 'news'])->name('news'); // новости
 
 Auth::routes();

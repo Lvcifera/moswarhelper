@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\Request;
 use App\Http\Requests\CharacterRequest;
 use App\Http\Requests\LicenceRequest;
 use App\Models\Character;
@@ -10,7 +9,6 @@ use App\Models\Licence;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use simplehtmldom\HtmlDocument;
 
@@ -48,7 +46,7 @@ class MainController extends Controller
         try {
             $licence = Licence::with('user')
                 ->where('user_id', '=', auth()->id())
-                ->where('player', '=', $cookies[3]['Value'])
+                ->where('player', '=', urldecode($cookies[3]['Value']))
                 ->firstOrFail();
         } catch (ModelNotFoundException $exception) {
             return redirect()->route('characters')->with('danger', 'У вас нет лицензии на этого персонажа');
@@ -84,7 +82,7 @@ class MainController extends Controller
                 'PHPSESSID' => $cookies[0]['Value'],
                 'authkey' => $cookies[1]['Value'],
                 'userid' => $cookies[2]['Value'],
-                'player' => $cookies[3]['Value'],
+                'player' => urldecode($cookies[3]['Value']),
                 'player_id' => $cookies[4]['Value'],
                 'param' => $param,
                 'email' => $request->get('email'),
@@ -119,11 +117,13 @@ class MainController extends Controller
         }
         $licence = Licence::firstOrCreate(
             [
+                'user_id' => auth()->id(),
                 'player' => $request->get('player'),
             ],
             [
                 'user_id' => auth()->id(),
                 'player' => $request->get('player'),
+                'start' => Carbon::now(),
                 'end' => Carbon::now()->addMonths($request->get('monthCount'))
             ]
         );
@@ -145,10 +145,5 @@ class MainController extends Controller
     public function news()
     {
         return view('news');
-    }
-
-    public function test()
-    {
-
     }
 }

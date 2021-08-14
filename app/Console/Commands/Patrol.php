@@ -66,6 +66,8 @@ class Patrol extends Command
                         'application/x-www-form-urlencoded; charset=UTF-8',
                         'https://www.moswar.ru/alley/'
                     );
+                    $patrol->last_start = Carbon::now();
+                    $patrol->save();
                 } elseif (!$first_region && $second_region) {
                     $content = 'action=patrol&region=' . $patrol->getRawOriginal('second_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
                     $patrol_start = Request::postRequest(
@@ -74,6 +76,8 @@ class Patrol extends Command
                         'application/x-www-form-urlencoded; charset=UTF-8',
                         'https://www.moswar.ru/alley/'
                     );
+                    $patrol->last_start = Carbon::now();
+                    $patrol->save();
                 } elseif (!$first_region && !$second_region && $third_region) {
                     $content = 'action=patrol&region=' . $patrol->getRawOriginal('third_region') . '&time=' . $patrol->time . '&__ajax=1&return_url=/alley/';
                     $patrol_start = Request::postRequest(
@@ -82,9 +86,9 @@ class Patrol extends Command
                         'application/x-www-form-urlencoded; charset=UTF-8',
                         'https://www.moswar.ru/alley/'
                     );
+                    $patrol->last_start = Carbon::now();
+                    $patrol->save();
                 }
-                $patrol->last_start = Carbon::now();
-                $patrol->save();
             }
         }
     }
